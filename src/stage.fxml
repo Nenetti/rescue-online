@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox prefHeight="480.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #777777;">
+         <children>
+            <Label alignment="CENTER" minHeight="50.0" minWidth="200.0" text="エージェント" textFill="WHITE">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Label>
+            <Button fx:id="AT_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="AmbulanceTeam" />
+            <Button fx:id="FB_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="FireBrigade" />
+            <Button fx:id="PF_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="PoliceForce" />
+            <Label alignment="CENTER" minHeight="50.0" minWidth="200.0" text="センター" textFill="WHITE">
+               <font>
+                  <Font size="25.0" />
+               </font>
+            </Label>
+            <Button fx:id="AC_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="AmbulanceCenter" />
+            <Button fx:id="FS_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="FireStation" />
+            <Button fx:id="PO_Button" minHeight="50.0" minWidth="200.0" mnemonicParsing="false" text="PoliceOffice" />
+         </children>
+      </VBox>
+      <AnchorPane minHeight="0.0" minWidth="0.0">
+         <children>
+            <ComboBox fx:id="Detector_Box" layoutX="20.0" layoutY="60.0" prefWidth="250.0" />
+            <Label layoutX="20.0" layoutY="40.0" text="Detector">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="Search_Box" layoutX="320.0" layoutY="60.0" prefWidth="250.0" />
+            <Label layoutX="320.0" layoutY="40.0" text="Search">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="ExtAction_Box" layoutX="20.0" layoutY="140.0" prefWidth="250.0" />
+            <Label layoutX="20.0" layoutY="120.0" text="ExtAction">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="CommandExecutor_Box" layoutX="20.0" layoutY="220.0" prefWidth="250.0" />
+            <Label layoutX="20.0" layoutY="200.0" text="CommandExecutor">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="ActionExtMove_Box" layoutX="320.0" layoutY="140.0" prefWidth="250.0" />
+            <Label layoutX="320.0" layoutY="120.0" text="ActionExtMove">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="CommandExecutorScout_Box" layoutX="320.0" layoutY="220.0" prefWidth="250.0" />
+            <Label layoutX="320.0" layoutY="200.0" text="CommandExecutorScout">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="Clustering_Box" layoutX="20.0" layoutY="300.0" prefWidth="250.0" />
+            <Label layoutX="20.0" layoutY="280.0" text="Clustering">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+            <ComboBox fx:id="PathPlanning_Box" layoutX="320.0" layoutY="300.0" prefWidth="250.0" />
+            <Label layoutX="320.0" layoutY="280.0" text="PathPlanning">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+   </children>
+</HBox>
