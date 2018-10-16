@@ -6,17 +6,19 @@ import java.util.List;
 
 public class ModuleConfig {
 
-	public HashMap<String, ClassFile> humanDetectors=new HashMap<>();
-	public HashMap<String, ClassFile> buildingDetectors=new HashMap<>();
-	public HashMap<String, ClassFile> roadDetectors=new HashMap<>();
+	public HashMap<String, ClassFile> detectors=new HashMap<>();
+	private HashMap<String, ClassFile> humanDetectors=new HashMap<>();
+	private HashMap<String, ClassFile> buildingDetectors=new HashMap<>();
+	private HashMap<String, ClassFile> roadDetectors=new HashMap<>();
 	
 	public HashMap<String, ClassFile> extActions=new HashMap<>();
 	
 	public HashMap<String, ClassFile> searchs=new HashMap<>();
 	public HashMap<String, ClassFile> commandPickers=new HashMap<>();
 	
-	public HashMap<String, ClassFile> dynamicClusterings=new HashMap<>();
-	public HashMap<String, ClassFile> staticClusterings=new HashMap<>();
+	public HashMap<String, ClassFile> clusterings=new HashMap<>();
+	private HashMap<String, ClassFile> dynamicClusterings=new HashMap<>();
+	private HashMap<String, ClassFile> staticClusterings=new HashMap<>();
 	
 	public HashMap<String, ClassFile> pathPlannings=new HashMap<>();
 	
@@ -34,7 +36,6 @@ public class ModuleConfig {
 	public AgentConfig at=new AgentConfig();
 	public AgentConfig fb=new AgentConfig();
 	public AgentConfig pf=new AgentConfig();
-	
 
 	public ModuleConfig(List<ClassFile> files) {
 		for(ClassFile classFile: files) {
@@ -107,6 +108,11 @@ public class ModuleConfig {
 				break;
 			}
 		}
+		detectors.putAll(buildingDetectors);
+		detectors.putAll(humanDetectors);
+		detectors.putAll(roadDetectors);
+		clusterings.putAll(dynamicClusterings);
+		clusterings.putAll(staticClusterings);
 	}
 
 
@@ -125,6 +131,18 @@ public class ModuleConfig {
 
 		public AgentConfig() {
 
+		}
+		
+		public void set(ClassFile detector, ClassFile search, ClassFile extAction, ClassFile extActionMove,
+				ClassFile commandExecutor, ClassFile commandExecutorScout, ClassFile clustering, ClassFile pathPlanning) {
+			this.detector=detector;
+			this.search=search;
+			this.extAction=extAction;
+			this.extActionMove=extActionMove;
+			this.commandExecutor=commandExecutor;
+			this.commandExecutorScout=commandExecutorScout;
+			this.clustering=clustering;
+			this.pathPlanning=pathPlanning;
 		}
 
 	}

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import module.ClassFile;
 import module.ClassReader;
 import module.ModuleConfig;
 import module.NodeFX;
+import module.ModuleConfig.AgentConfig;
 
 
 
@@ -29,7 +32,7 @@ import module.NodeFX;
 
 public class Main_Client extends Application {
 
-
+	List<ComboBox<String>> comboBoxs;
 	ComboBox<String> detector;
 	ComboBox<String> search;
 	ComboBox<String> extAction;
@@ -45,14 +48,14 @@ public class Main_Client extends Application {
 	Button ac_Button;
 	Button fs_Button;
 	Button po_Button;
-	
+
 	private static final String AT_BUTTON_ID="AT_Button";
 	private static final String FB_BUTTON_ID="FB_Button";
 	private static final String PF_BUTTON_ID="PF_Button";
 	private static final String AC_BUTTON_ID="AC_Button";
 	private static final String FS_BUTTON_ID="FS_Button";
 	private static final String PO_BUTTON_ID="PO_Button";
-	
+
 	String selectButtonID;
 
 	@SuppressWarnings("unchecked")
@@ -76,6 +79,8 @@ public class Main_Client extends Application {
 		//commandExecutorScout=(ComboBox<String>)nodeFX.getNode("Detector_Box");
 		clustering=(ComboBox<String>)nodeFX.getNode("Clustering_Box");
 		pathPlanning=(ComboBox<String>)nodeFX.getNode("PathPlanning_Box");
+		
+		comboBoxs=Arrays.asList(detector, search, extAction, extActionMove, clustering, pathPlanning);
 
 		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-master/src");
 		ModuleConfig config=new ModuleConfig(classFiles);
@@ -84,10 +89,9 @@ public class Main_Client extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				Button source=(Button)event.getSource();
-				saveConfig(config, selectButtonID);
+				//saveConfig(config, selectButtonID);
 				switch (source.getId()) {
 				case AT_BUTTON_ID:
-					config.at
 					break;
 				case FB_BUTTON_ID:
 					break;
@@ -131,16 +135,63 @@ public class Main_Client extends Application {
 		primaryStage.show();
 	}
 
-	public void saveConfig(ModuleConfig config, String agentID) {
-		
+	public void changeConfig(ModuleConfig config, String agentID) {
+		AgentConfig agentConfig=null;
+		switch (agentID) {
+		case AT_BUTTON_ID:
+			agentConfig=config.at;
+			break;
+		case FB_BUTTON_ID:
+			agentConfig=config.fb;
+			break;
+		case PF_BUTTON_ID:
+			agentConfig=config.pf;
+			break;
+		case AC_BUTTON_ID:
+			break;
+		case FS_BUTTON_ID:
+			break;
+		case PO_BUTTON_ID:
+			break;
+		}
+		/*
+		if(agentConfig!=null) {
+			if(detector.getItems().contains(agentConfig.detector.className)) detector.getSelectionModel().select(agentConfig.detector.className);
+		}*/
 	}
-	
+
+	public void saveConfig(ModuleConfig config, String agentID) {
+		ClassFile detectorClass=config.detectors.get(detector.getSelectionModel().getSelectedItem());
+		ClassFile searchClass=config.detectors.get(search.getSelectionModel().getSelectedItem());
+		ClassFile extActionClass=config.detectors.get(extAction.getSelectionModel().getSelectedItem());
+		ClassFile extActionMoveClass=config.detectors.get(extActionMove.getSelectionModel().getSelectedItem());
+		ClassFile commandExecutorClass=config.detectors.get(commandExecutor.getSelectionModel().getSelectedItem());
+		ClassFile commandExecutorScoutClass=config.detectors.get(commandExecutorScout.getSelectionModel().getSelectedItem());
+		ClassFile clusteringClass=config.detectors.get(clustering.getSelectionModel().getSelectedItem());
+		ClassFile pathPlanningClass=config.detectors.get(pathPlanning.getSelectionModel().getSelectedItem());
+		switch (agentID) {
+		case AT_BUTTON_ID:
+			config.at.set(detectorClass, searchClass, extActionClass, extActionMoveClass, commandExecutorClass, commandExecutorScoutClass, clusteringClass, pathPlanningClass);
+			break;
+		case FB_BUTTON_ID:
+			config.fb.set(detectorClass, searchClass, extActionClass, extActionMoveClass, commandExecutorClass, commandExecutorScoutClass, clusteringClass, pathPlanningClass);
+			break;
+		case PF_BUTTON_ID:
+			config.pf.set(detectorClass, searchClass, extActionClass, extActionMoveClass, commandExecutorClass, commandExecutorScoutClass, clusteringClass, pathPlanningClass);
+			break;
+		case AC_BUTTON_ID:
+			break;
+		case FS_BUTTON_ID:
+			break;
+		case PO_BUTTON_ID:
+			break;
+		}
+	}
+
 	public void setConfig(ModuleConfig config) {
 		detector.getItems().clear();
-		detector.getItems().addAll(config.humanDetectors.keySet());
-		detector.getItems().addAll(config.buildingDetectors.keySet());
-		detector.getItems().addAll(config.roadDetectors.keySet());
-		detector.getSelectionModel().selectFirst();
+		detector.getItems().addAll(config.detectors.keySet());
+		detector.getSelectionModel().select("SampleRoadDetector");
 		search.getItems().clear();
 		search.getItems().addAll(config.searchs.keySet());
 		search.getSelectionModel().selectFirst();
@@ -153,8 +204,7 @@ public class Main_Client extends Application {
 		//commandExecutor.getItems().clear();
 		//commandExecutor.getItems().addAll(config..keySet());
 		clustering.getItems().clear();
-		clustering.getItems().addAll(config.dynamicClusterings.keySet());
-		clustering.getItems().addAll(config.staticClusterings.keySet());
+		clustering.getItems().addAll(config.clusterings.keySet());
 		clustering.getSelectionModel().selectFirst();
 		pathPlanning.getItems().clear();
 		pathPlanning.getItems().addAll(config.pathPlannings.keySet());
