@@ -16,4 +16,9 @@ public class ClassFile {
 		this.superClass=superClass;
 	}
 	
+	@Override
+	public String toString() {
+		return className+" extends "+superClass;
+	}
+	
 }

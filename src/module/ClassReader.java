@@ -71,9 +71,6 @@ public class ClassReader {
 			reader.close();
 			
 			if(className!=null&&superClass!=null) {
-				System.out.println(file);
-				System.out.println(className);
-				System.out.println(superClass+"\n");
 				return new ClassFile(file, className, superClass);
 			}
 		} catch (Exception e) {
