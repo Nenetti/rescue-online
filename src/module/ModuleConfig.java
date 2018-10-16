@@ -31,10 +31,13 @@ public class ModuleConfig {
 	public HashMap<String, ClassFile> tacticsAmbulanceTeams=new HashMap<>();
 	public HashMap<String, ClassFile> tacticsPoliceForces=new HashMap<>();
 
+	public AgentConfig at=new AgentConfig();
+	public AgentConfig fb=new AgentConfig();
+	public AgentConfig pf=new AgentConfig();
+	
 
 	public ModuleConfig(List<ClassFile> files) {
 		for(ClassFile classFile: files) {
-			System.out.println(classFile);
 			switch (classFile.superClass) {
 			//Detector系
 			case "HumanDetector":
