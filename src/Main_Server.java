@@ -22,22 +22,23 @@ public class Main_Server {
 	public static void main(String[] args) throws Exception{
 		ServerSocket serverSocket=new ServerSocket(9999);
 		Socket socket=serverSocket.accept();
-		
+		/*
 		BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		String line;
 		while((line=reader.readLine())!=null) {
 			System.out.println(line);
 		}
 		System.out.println("終了");
-		
-		//run("../maps/gml/test/map", "../maps/gml/test/config");
+		*/
+		run("../maps/gml/test/map", "../maps/gml/test/config");
 	}
 	
 	public static void run(String mapDataPath, String mapConfigPath) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(()->{
 			try {
-				Runtime.getRuntime().exec("bash "+SERVER_PATH+"/boot/kill.sh");
-			} catch (IOException e) {
+				Process killProcess=new ProcessBuilder("bash ", SERVER_PATH+"/boot/kill.sh").inheritIO().start();
+				killProcess.waitFor();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			}));

@@ -53,7 +53,7 @@ public class ClassReader {
 			String superClass=null;
 			
 			while((line=reader.readLine())!=null) {
-				if(line.contains("public")&&line.contains("class")&&line.contains("extends")) {
+				if(line.contains("class")&&line.contains("extends")) {
 					String[] split=line.split(" ");
 					for(int i=0;i<split.length;i++) {
 						switch (split[i]) {
@@ -65,6 +65,9 @@ public class ClassReader {
 							superClass=superClass.replaceAll("\\{", "");
 							break;
 						}
+					}
+					if(className!=null&&superClass!=null) {
+						break;
 					}
 				}
 			}
