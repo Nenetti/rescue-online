@@ -49,6 +49,7 @@ public class ClassReader {
 			BufferedReader reader=new BufferedReader(new FileReader(file));
 			
 			String line;
+			String packageName=null;
 			String className=null;
 			String superClass=null;
 			
@@ -66,15 +67,15 @@ public class ClassReader {
 							break;
 						}
 					}
-					if(className!=null&&superClass!=null) {
-						break;
-					}
+					break;
+				}else if(line.contains("package ")) {
+					packageName=line.substring(line.indexOf(" ")+1, line.indexOf(";"));
 				}
 			}
 			reader.close();
 			
-			if(className!=null&&superClass!=null) {
-				return new ClassFile(file, className, superClass);
+			if(packageName!=null&&className!=null&&superClass!=null) {
+				return new ClassFile(file, packageName, className, superClass);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

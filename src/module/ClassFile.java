@@ -6,19 +6,25 @@ public class ClassFile {
 	
 	
 	public File file;
+	public String packagePath;
 	public String className;
 	public String superClass;
 	
 	
-	public ClassFile(File file, String className, String superClass) {
+	public ClassFile(File file, String packagePath, String className, String superClass) {
 		this.file=file;
+		this.packagePath=packagePath;
 		this.className=className;
 		this.superClass=superClass;
 	}
 	
+	public String toOutputFormat() {
+		return packagePath+"."+className;
+	}
+	
 	@Override
 	public String toString() {
-		return className+" extends "+superClass;
+		return packagePath+": "+className+" extends "+superClass;
 	}
 	
 }
