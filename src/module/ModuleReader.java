@@ -10,15 +10,9 @@ public class ModuleReader {
 
 
 
-
-
-	public ModuleReader(String filePath) {
-		File file=new File(filePath);
-		HashMap<String, String> map=read(file);
-	}
-
-	public HashMap<String, String> read(File file){
+	public static HashMap<String, String> read(String filePath){
 		try {
+			File file=new File(filePath);
 			HashMap<String, String> map=new HashMap<>();
 			BufferedReader reader=new BufferedReader(new FileReader(file));
 			String line;
@@ -38,17 +32,5 @@ public class ModuleReader {
 		}
 		return null;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

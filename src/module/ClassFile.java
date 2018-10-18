@@ -22,6 +22,10 @@ public class ClassFile {
 		return packagePath+"."+className;
 	}
 	
+	public static String toClassName(String name) {
+		return name.substring(name.lastIndexOf('.')+1);
+	}
+	
 	@Override
 	public String toString() {
 		return packagePath+": "+className+" extends "+superClass;

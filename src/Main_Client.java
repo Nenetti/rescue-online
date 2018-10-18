@@ -40,7 +40,6 @@ public class Main_Client extends Application {
 
 	
 		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-master/src");
-		//new ModuleReader(System.getProperty("user.home")+"/git/sample-master/config/module_sample.cfg");
 		ModuleConfig config=new ModuleConfig(nodeFX, classFiles);
 
 		Scene scene=new Scene(nodeFX.root);

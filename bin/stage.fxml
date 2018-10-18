@@ -76,13 +76,37 @@
                      </font>
                   </Label>
                   <ComboBox fx:id="Clustering_Box" layoutX="20.0" layoutY="300.0" prefWidth="250.0" />
-                  <Label layoutX="20.0" layoutY="280.0" text="Clustering">
+                  <Label layoutX="20.0" layoutY="280.0" text="Detector.Clustering">
                      <font>
                         <Font size="20.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="PathPlanning_Box" layoutX="320.0" layoutY="300.0" prefWidth="250.0" />
-                  <Label layoutX="320.0" layoutY="280.0" text="PathPlanning">
+                  <ComboBox fx:id="DetectorPathPlanning_Box" layoutX="320.0" layoutY="300.0" prefWidth="250.0" />
+                  <Label layoutX="320.0" layoutY="280.0" text="Detector.PathPlanning">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="ActionExtPathPlanning_Box" layoutX="330.0" layoutY="390.0" prefWidth="250.0" />
+                  <Label layoutX="330.0" layoutY="370.0" text="ExtAction.PathPlanning">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="SearchPathPlanning_Box" layoutX="41.0" layoutY="393.0" prefWidth="250.0" />
+                  <Label layoutX="41.0" layoutY="373.0" text="Search.PathPlanning">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="SearchClustering_Box" layoutX="334.0" layoutY="444.0" prefWidth="250.0" />
+                  <Label layoutX="334.0" layoutY="424.0" text="Search.Clustering">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <ComboBox fx:id="ActionExtMovePathPlanning_Box" layoutX="24.0" layoutY="446.0" prefWidth="250.0" />
+                  <Label layoutX="24.0" layoutY="426.0" text="ExtActionMove.PathPlanning">
                      <font>
                         <Font size="20.0" />
                      </font>

@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.ConstraintsBase;
 
 public class ModuleConfig {
 
@@ -39,8 +40,12 @@ public class ModuleConfig {
 	public ComboBox<String> extActionMove;
 	public ComboBox<String> commandExecutor;
 	public ComboBox<String> commandExecutorScout;
-	public ComboBox<String> clustering;
-	public ComboBox<String> pathPlanning;
+	public ComboBox<String> detectorClustering;
+	public ComboBox<String> detectorPathPlanning;
+	public ComboBox<String> extActionPathPlanning;
+	public ComboBox<String> extActionMovePathPlanning;
+	public ComboBox<String> searchPathPlanning;
+	public ComboBox<String> searchClustering;
 	public ComboBox<String> targetAllocator;
 	public ComboBox<String> commandPicker;
 
@@ -69,9 +74,9 @@ public class ModuleConfig {
 
 	public HashMap<String, ClassFile> commandExecutors = new HashMap<>();
 	private HashMap<String, ClassFile> commandExecutors_CommandPolice = new HashMap<>();
-	private HashMap<String, ClassFile> commandExecutors_CommandScout = new HashMap<>();
 	private HashMap<String, ClassFile> commandExecutors_CommandAmbulance = new HashMap<>();
 	private HashMap<String, ClassFile> commandExecutors_CommandFire = new HashMap<>();
+	public HashMap<String, ClassFile> commandExecutors_CommandScout = new HashMap<>();
 
 	public HashMap<String, ClassFile> targetAllocators = new HashMap<>();
 	private HashMap<String, ClassFile> fireTargetAllocators = new HashMap<>();
@@ -93,18 +98,80 @@ public class ModuleConfig {
 		centerConfigs.put(Module.FS, new CenterConfig("FS"));
 		centerConfigs.put(Module.PO, new CenterConfig("PO"));
 
-		setupModuleList(files);
-		setupGUI(nodeFX);
-		setupConfig(selectModule);
 
-		saveConfig(Module.AT);
-		saveConfig(Module.FB);
-		saveConfig(Module.PF);
-		saveConfig(Module.AC);
-		saveConfig(Module.FS);
-		saveConfig(Module.PO);
+		setupModuleList(files);
+		setupConfig(System.getProperty("user.home")+"/git/sample-master/config/module_sample.cfg");
+
+		setupGUI(nodeFX);
+		updateConfig(selectModule);
+
+		changeConfig(selectModule);
+
 
 	}
+
+	@SuppressWarnings("incomplete-switch")
+	private void setupConfig(String filePath) {
+		HashMap<String, String> map=ModuleReader.read(filePath);
+		AgentConfig at=agentConfigs.get(Module.AT);
+		AgentConfig fb=agentConfigs.get(Module.FB);
+		AgentConfig pf=agentConfigs.get(Module.PF);
+
+		at.detector=detectors.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.HumanDetector")));
+		at.search=searchs.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.Search")));
+		at.extAction=extActions.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.ActionTransport")));
+		at.extActionMove=extActions.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.ActionExtMove")));
+		at.commandExecutor=commandExecutors.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.CommandExecutorAmbulance")));
+		at.commandExecutorScout=commandExecutors_CommandScout.get(ClassFile.toClassName(map.get("TacticsAmbulanceTeam.CommandExecutorScout")));
+
+		fb.detector=detectors.get(ClassFile.toClassName(map.get("TacticsFireBrigade.BuildingDetector")));
+		fb.search=searchs.get(ClassFile.toClassName(map.get("TacticsFireBrigade.Search")));
+		fb.extAction=extActions.get(ClassFile.toClassName(map.get("TacticsFireBrigade.ActionFireFighting")));
+		fb.extActionMove=extActions.get(ClassFile.toClassName(map.get("TacticsFireBrigade.ActionExtMove")));
+		fb.commandExecutor=commandExecutors.get(ClassFile.toClassName(map.get("TacticsFireBrigade.CommandExecutorFire")));
+		fb.commandExecutorScout=commandExecutors_CommandScout.get(ClassFile.toClassName(map.get("TacticsFireBrigade.CommandExecutorScout")));
+
+		pf.detector=detectors.get(ClassFile.toClassName(map.get("TacticsPoliceForce.RoadDetector")));
+		pf.search=searchs.get(ClassFile.toClassName(map.get("TacticsPoliceForce.Search")));
+		pf.extAction=extActions.get(ClassFile.toClassName(map.get("TacticsPoliceForce.ActionExtClear")));
+		pf.extActionMove=extActions.get(ClassFile.toClassName(map.get("TacticsPoliceForce.ActionExtMove")));
+		pf.commandExecutor=commandExecutors.get(ClassFile.toClassName(map.get("TacticsPoliceForce.CommandExecutorPolice")));
+		pf.commandExecutorScout=commandExecutors_CommandScout.get(ClassFile.toClassName(map.get("TacticsPoliceForce.CommandExecutorScout")));
+
+		at.detectorClustering=clusterings.get(ClassFile.toClassName(map.get(at.detector.className+"."+"Clustering")));
+		fb.detectorClustering=clusterings.get(ClassFile.toClassName(map.get(fb.detector.className+"."+"Clustering")));
+		pf.detectorPpathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.detector.className+"."+"PathPlanning")));
+
+		at.searchPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(at.search.className+"."+"PathPlanning.Ambulance")));
+		at.searchClustering=clusterings.get(ClassFile.toClassName(map.get(at.search.className+"."+"Clustering.Ambulance")));
+		fb.searchPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(fb.search.className+"."+"PathPlanning.Fire")));
+		fb.searchClustering=clusterings.get(ClassFile.toClassName(map.get(fb.search.className+"."+"Clustering.Fire")));
+		pf.searchPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.search.className+"."+"PathPlanning.Police")));
+		pf.searchClustering=clusterings.get(ClassFile.toClassName(map.get(pf.search.className+"."+"Clustering.Police")));
+		
+		at.extActionPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(at.extAction.className+"."+"PathPlanning")));
+		fb.extActionPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(fb.extAction.className+"."+"PathPlanning")));
+		pf.extActionPathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.extAction.className+"."+"PathPlanning")));
+		
+		at.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(at.extActionMove.className+"."+"PathPlanning")));
+		fb.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(fb.extActionMove.className+"."+"PathPlanning")));
+		pf.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.extActionMove.className+"."+"PathPlanning")));
+		
+		at.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(at.extActionMove.className+"."+"PathPlanning")));
+		fb.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(fb.extActionMove.className+"."+"PathPlanning")));
+		pf.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.extActionMove.className+"."+"PathPlanning")));
+
+		/*at.search=clusterings.get(map.get(at.search.className+"."+"PathPlanning.Ambulance"));
+		at.search=clusterings.get(map.get(at.search.className+"."+"Clustering.Ambulance"));
+		fb.search=pathPlannings.get(map.get(fb.search.className+"."+"PathPlanning.Fire"));
+		fb.search=pathPlannings.get(map.get(fb.search.className+"."+"Clustering.Fire"));
+		pf.search=clusterings.get(map.get(pf.search.className+"."+"PathPlanning.Police"));
+		pf.search=clusterings.get(map.get(pf.search.className+"."+"Clustering.Police"));
+*/
+
+
+	}
+
 
 	private void setupModuleList(List<ClassFile> files) {
 		for (ClassFile classFile : files) {
@@ -181,12 +248,11 @@ public class ModuleConfig {
 		commandExecutors.putAll(commandExecutors_CommandPolice);
 	}
 
-	private void setupConfig(Module module) {
+	private void updateConfig(Module module) {
 
 		for(ComboBox<String> box: comboBoxs) {
 			box.getItems().clear();
 		}
-
 		switch (module) {
 		case AT:
 			detector.getItems().addAll(humanDetectors.keySet());
@@ -214,13 +280,13 @@ public class ModuleConfig {
 		extAction.getItems().addAll(extActions.keySet());
 		extActionMove.getItems().addAll(extActions.keySet());
 		commandExecutorScout.getItems().addAll(commandExecutors_CommandScout.keySet());
-		clustering.getItems().addAll(clusterings.keySet());
-		pathPlanning.getItems().addAll(pathPlannings.keySet());
+		detectorClustering.getItems().addAll(clusterings.keySet());
+		searchClustering.getItems().addAll(clusterings.keySet());
+		searchPathPlanning.getItems().addAll(pathPlannings.keySet());
+		detectorPathPlanning.getItems().addAll(pathPlannings.keySet());
+		extActionPathPlanning.getItems().addAll(pathPlannings.keySet());
+		extActionMovePathPlanning.getItems().addAll(pathPlannings.keySet());
 		commandPicker.getItems().addAll(commandPickers.keySet());
-		
-		for(ComboBox<String> box: comboBoxs) {
-			box.getSelectionModel().selectFirst();
-		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -241,13 +307,17 @@ public class ModuleConfig {
 		extActionMove = (ComboBox<String>) nodeFX.getNode("ActionExtMove_Box");
 		commandExecutor = (ComboBox<String>) nodeFX.getNode("CommandExecutor_Box");
 		commandExecutorScout = (ComboBox<String>) nodeFX.getNode("CommandExecutorScout_Box");
-		clustering = (ComboBox<String>) nodeFX.getNode("Clustering_Box");
-		pathPlanning = (ComboBox<String>) nodeFX.getNode("PathPlanning_Box");
+		detectorClustering = (ComboBox<String>) nodeFX.getNode("Clustering_Box");
+		searchClustering = (ComboBox<String>) nodeFX.getNode("SearchClustering_Box");
+		detectorPathPlanning = (ComboBox<String>) nodeFX.getNode("DetectorPathPlanning_Box");
+		extActionPathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtPathPlanning_Box");
+		extActionMovePathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtMovePathPlanning_Box");
+		searchPathPlanning = (ComboBox<String>) nodeFX.getNode("SearchPathPlanning_Box");
 		commandPicker = (ComboBox<String>) nodeFX.getNode("CommandPicker_Box");
 		targetAllocator = (ComboBox<String>) nodeFX.getNode("TargetAllocator_Box");
 
 		comboBoxs=Arrays.asList(detector, search, extAction, extActionMove,
-				commandExecutor, commandExecutorScout, clustering, pathPlanning, commandPicker, targetAllocator);
+				commandExecutor, commandExecutorScout, detectorClustering, searchClustering, detectorPathPlanning, extActionPathPlanning, searchClustering, commandPicker, targetAllocator);
 
 		agentPanel.setVisible(true);
 		centerPanel.setVisible(false);
@@ -261,7 +331,7 @@ public class ModuleConfig {
 				Button source = (Button) event.getSource();
 				Module module=Module.valueOf(source.getId().substring(0, 2));
 				saveConfig(selectModule);
-				setupConfig(module);
+				updateConfig(module);
 				changeConfig(module);
 				selectModule=module;
 				agentPanel.setVisible(true);
@@ -274,7 +344,7 @@ public class ModuleConfig {
 				Button source = (Button) event.getSource();
 				Module module=Module.valueOf(source.getId().substring(0, 2));
 				saveConfig(selectModule);
-				setupConfig(module);
+				updateConfig(module);
 				changeConfig(module);
 				selectModule=module;
 				agentPanel.setVisible(false);
@@ -306,8 +376,12 @@ public class ModuleConfig {
 			set(extActionMove, agentConfig.extActionMove);
 			set(commandExecutor, agentConfig.commandExecutor);
 			set(commandExecutorScout, agentConfig.commandExecutorScout);
-			set(clustering, agentConfig.clustering);
-			set(pathPlanning, agentConfig.pathPlanning);
+			set(detectorClustering, agentConfig.detectorClustering);
+			set(searchClustering, agentConfig.searchClustering);
+			set(detectorPathPlanning, agentConfig.detectorPpathPlanning);
+			set(extActionPathPlanning, agentConfig.extActionPathPlanning);
+			set(extActionMovePathPlanning, agentConfig.extActionMovePathPlanning);
+			set(searchPathPlanning, agentConfig.searchPathPlanning);
 		} else if (centerConfig != null) {
 			set(targetAllocator, centerConfig.targetAllocator);
 			set(commandPicker, centerConfig.commandPicker);
@@ -336,8 +410,12 @@ public class ModuleConfig {
 					extActions.get(extActionMove.getSelectionModel().getSelectedItem()),
 					commandExecutors.get(commandExecutor.getSelectionModel().getSelectedItem()),
 					commandExecutors_CommandScout.get(commandExecutorScout.getSelectionModel().getSelectedItem()),
-					clusterings.get(clustering.getSelectionModel().getSelectedItem()),
-					pathPlannings.get(pathPlanning.getSelectionModel().getSelectedItem()));
+					clusterings.get(detectorClustering.getSelectionModel().getSelectedItem()),
+					clusterings.get(searchClustering.getSelectionModel().getSelectedItem()),
+					pathPlannings.get(detectorPathPlanning.getSelectionModel().getSelectedItem()),
+					pathPlannings.get(extActionPathPlanning.getSelectionModel().getSelectedItem()),
+					pathPlannings.get(extActionMovePathPlanning.getSelectionModel().getSelectedItem()),
+					pathPlannings.get(searchPathPlanning.getSelectionModel().getSelectedItem()));
 		} else if (centerConfig != null) {
 			centerConfig.set(
 					targetAllocators.get(targetAllocator.getSelectionModel().getSelectedItem()),
@@ -346,6 +424,10 @@ public class ModuleConfig {
 	}
 
 	public void output() {
+		for(Module agent: agentConfigs.keySet()) {
+			AgentConfig config=agentConfigs.get(agent);
+
+		}
 		HashMap<String, String> map =new HashMap<>();
 		for(Module agent: agentConfigs.keySet()) {
 			AgentConfig config=agentConfigs.get(agent);
@@ -353,6 +435,9 @@ public class ModuleConfig {
 			String detector=null;
 			String extAction=null;
 			String commandExecutor=null;
+			String extActionMove="ActionExtMove";
+			String search="Search";
+			String commandExecutorScout="CommandExecutorScout";
 			switch (agent) {
 			case AT:
 				tactics="TacticsAmbulanceTeam";
@@ -373,14 +458,14 @@ public class ModuleConfig {
 				commandExecutor="CommandExecutorPolice";
 				break;
 			}
-			if(config.detector!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.search!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.extAction!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.extActionMove!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.commandExecutor!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.commandExecutorScout!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.detector!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
-			if(config.detector!=null) map.put(tactics+"."+detector, config.detector.toOutputFormat());
+			map.put(tactics+"."+detector, config.detector.toOutputFormat());
+			map.put(tactics+"."+search, config.search.toOutputFormat());
+			map.put(tactics+"."+extAction, config.extAction.toOutputFormat());
+			map.put(tactics+"."+extActionMove, config.extActionMove.toOutputFormat());
+			map.put(tactics+"."+commandExecutor, config.commandExecutor.toOutputFormat());
+			map.put(tactics+"."+commandExecutorScout, config.commandExecutorScout.toOutputFormat());
+			map.put(tactics+"."+detector, config.detector.toOutputFormat());
+			map.put(tactics+"."+detector, config.detector.toOutputFormat());
 		}
 	}
 
@@ -393,24 +478,50 @@ public class ModuleConfig {
 		public ClassFile extActionMove;
 		public ClassFile commandExecutor;
 		public ClassFile commandExecutorScout;
-		public ClassFile clustering;
-		public ClassFile pathPlanning;
+		public ClassFile detectorClustering;
+		public ClassFile searchClustering;
+		public ClassFile detectorPpathPlanning;
+		public ClassFile extActionPathPlanning;
+		public ClassFile extActionMovePathPlanning;
+		public ClassFile searchPathPlanning;
 
 		public AgentConfig(String name) {
 			this.name = name;
 		}
 
 		public void set(ClassFile detector, ClassFile search, ClassFile extAction, ClassFile extActionMove,
-				ClassFile commandExecutor, ClassFile commandExecutorScout, ClassFile clustering,
-				ClassFile pathPlanning) {
+				ClassFile commandExecutor, ClassFile commandExecutorScout, ClassFile detectorClustering, ClassFile searchClustering,
+				ClassFile detectorPpathPlanning, ClassFile extActionPathPlanning, ClassFile extActionMovePathPlanning, ClassFile searchPathPlanning) {
 			this.detector = detector;
 			this.search = search;
 			this.extAction = extAction;
 			this.extActionMove = extActionMove;
 			this.commandExecutor = commandExecutor;
 			this.commandExecutorScout = commandExecutorScout;
-			this.clustering = clustering;
-			this.pathPlanning = pathPlanning;
+			this.detectorClustering = detectorClustering;
+			this.searchClustering = searchClustering;
+			this.detectorPpathPlanning=detectorPpathPlanning;
+			this.extActionPathPlanning=extActionPathPlanning;
+			this.extActionMovePathPlanning=extActionMovePathPlanning;
+			this.searchPathPlanning=searchPathPlanning;
+		}
+		
+		public class ExtAction {
+			public ClassFile classFile;
+			public ClassFile pathPlanning;
+			public ClassFile clustering;
+		}
+		
+		public class CommandExecutor{
+			public ClassFile classFile;
+			public ClassFile pathPlanning;
+			public ClassFile clustering;
+		}
+		
+		public class Detector {
+			public ClassFile classFile;
+			public ClassFile pathPlanning;
+			public ClassFile clustering;
 		}
 	}
 
