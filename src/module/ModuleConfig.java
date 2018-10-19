@@ -3,12 +3,17 @@ package module;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ConstraintsBase;
@@ -27,12 +32,10 @@ public class ModuleConfig {
 	private static final String AGENT_PANEL_ID = "AgentPanel";
 	private static final String CENTER_PANEL_ID = "CenterPanel";
 
-	private Module selectModule=Module.AT;
-
 	public AnchorPane agentPanel;
 	public AnchorPane centerPanel;
 
-	public List<ComboBox<String>> comboBoxs;
+	public HashSet<ComboBox<String>> comboBoxs;
 
 	public ComboBox<String> detector;
 	public ComboBox<String> search;
@@ -49,13 +52,14 @@ public class ModuleConfig {
 	public ComboBox<String> targetAllocator;
 	public ComboBox<String> commandPicker;
 
-	public Button at_Button;
-	public Button fb_Button;
-	public Button pf_Button;
-	public Button ac_Button;
-	public Button fs_Button;
-	public Button po_Button;
-	public Button exec_Button;
+	public TabPane tabPane;
+	public Tab at_Tab;
+	public Tab fb_Tab;
+	public Tab pf_Tab;
+	public Tab ac_Tab;
+	public Tab fs_Tab;
+	public Tab po_Tab;
+	public Tab exec_Tab;
 
 	public HashMap<String, ClassFile> detectors = new HashMap<>();
 	private HashMap<String, ClassFile> humanDetectors = new HashMap<>();
@@ -103,9 +107,10 @@ public class ModuleConfig {
 		setupConfig(System.getProperty("user.home")+"/git/sample-master/config/module_sample.cfg");
 
 		setupGUI(nodeFX);
-		updateConfig(selectModule);
+		updateConfig(Module.AT);
 
-		changeConfig(selectModule);
+		changeConfig(Module.AT);
+		updateGUI(Module.AT);
 
 
 	}
@@ -160,15 +165,6 @@ public class ModuleConfig {
 		at.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(at.extActionMove.className+"."+"PathPlanning")));
 		fb.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(fb.extActionMove.className+"."+"PathPlanning")));
 		pf.extActionMovePathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(pf.extActionMove.className+"."+"PathPlanning")));
-
-		/*at.search=clusterings.get(map.get(at.search.className+"."+"PathPlanning.Ambulance"));
-		at.search=clusterings.get(map.get(at.search.className+"."+"Clustering.Ambulance"));
-		fb.search=pathPlannings.get(map.get(fb.search.className+"."+"PathPlanning.Fire"));
-		fb.search=pathPlannings.get(map.get(fb.search.className+"."+"Clustering.Fire"));
-		pf.search=clusterings.get(map.get(pf.search.className+"."+"PathPlanning.Police"));
-		pf.search=clusterings.get(map.get(pf.search.className+"."+"Clustering.Police"));
-*/
-
 
 	}
 
@@ -291,15 +287,15 @@ public class ModuleConfig {
 
 	@SuppressWarnings("unchecked")
 	private void setupGUI(NodeFX nodeFX) {
-		at_Button = nodeFX.getButton(Module.AT.toString());
-		fb_Button = nodeFX.getButton(Module.FB.toString());
-		pf_Button = nodeFX.getButton(Module.PF.toString());
-		ac_Button = nodeFX.getButton(Module.AC.toString());
-		fs_Button = nodeFX.getButton(Module.FS.toString());
-		po_Button = nodeFX.getButton(Module.PO.toString());
+		at_Tab = nodeFX.getTab(Module.AT.toString());
+		fb_Tab = nodeFX.getTab(Module.FB.toString());
+		pf_Tab = nodeFX.getTab(Module.PF.toString());
+		ac_Tab = nodeFX.getTab(Module.AC.toString());
+		fs_Tab = nodeFX.getTab(Module.FS.toString());
+		po_Tab = nodeFX.getTab(Module.PO.toString());
 		agentPanel = nodeFX.getAnchorPane(AGENT_PANEL_ID);
 		centerPanel = nodeFX.getAnchorPane(CENTER_PANEL_ID);
-		exec_Button = nodeFX.getButton("Execute");
+		exec_Tab = nodeFX.getTab("Execute");
 
 		detector = (ComboBox<String>) nodeFX.getNode("Detector_Box");
 		search = (ComboBox<String>) nodeFX.getNode("Search_Box");
@@ -315,55 +311,49 @@ public class ModuleConfig {
 		searchPathPlanning = (ComboBox<String>) nodeFX.getNode("SearchPathPlanning_Box");
 		commandPicker = (ComboBox<String>) nodeFX.getNode("CommandPicker_Box");
 		targetAllocator = (ComboBox<String>) nodeFX.getNode("TargetAllocator_Box");
+		tabPane = nodeFX.getTabPane("TabPane");
 
-		comboBoxs=Arrays.asList(detector, search, extAction, extActionMove,
-				commandExecutor, commandExecutorScout, detectorClustering, searchClustering, detectorPathPlanning, extActionPathPlanning, searchClustering, commandPicker, targetAllocator);
-
+		comboBoxs=nodeFX.getAllNode(ComboBox.class).stream().map(t->(ComboBox<String>)t).collect(Collectors.toCollection(HashSet::new));
+				
+		comboBoxs.stream().forEach(t -> t.setStyle(t.getStyle()+" "+"-fx-font: 15px \"System\";"));
 		agentPanel.setVisible(true);
 		centerPanel.setVisible(false);
 		setupEventHandler();
 	}
 
 	private void setupEventHandler() {
-		EventHandler<ActionEvent> agentEventHandler = new EventHandler<ActionEvent>() {
+		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
 			@Override
-			public void handle(ActionEvent event) {
-				Button source = (Button) event.getSource();
-				Module module=Module.valueOf(source.getId().substring(0, 2));
-				saveConfig(selectModule);
-				updateConfig(module);
-				changeConfig(module);
-				selectModule=module;
-				agentPanel.setVisible(true);
-				centerPanel.setVisible(false);
+			public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
+				Module oldModule=Module.valueOf(oldTab.getId());
+				Module newModule=Module.valueOf(newTab.getId());
+				saveConfig(oldModule);
+				updateConfig(newModule);
+				changeConfig(newModule);
+				updateGUI(newModule);
 			}
-		};
-		EventHandler<ActionEvent> centerEventHandler = new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				Button source = (Button) event.getSource();
-				Module module=Module.valueOf(source.getId().substring(0, 2));
-				saveConfig(selectModule);
-				updateConfig(module);
-				changeConfig(module);
-				selectModule=module;
-				agentPanel.setVisible(false);
-				centerPanel.setVisible(true);
+		});
+	}
+	
+	private void updateGUI(Module module) {
+		if(module==Module.AT||module==Module.FB||module==Module.PF) {
+			switch (module) {
+			case AT:
+			case FB:
+				detectorClustering.setDisable(false);
+				detectorPathPlanning.setDisable(true);
+				break;
+			case PF:
+				detectorClustering.setDisable(true);
+				detectorPathPlanning.setDisable(false);
+				break;
 			}
-		};
-		EventHandler<ActionEvent> executeEventHandler = new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				output();
-			}
-		};
-		at_Button.setOnAction(agentEventHandler);
-		fb_Button.setOnAction(agentEventHandler);
-		pf_Button.setOnAction(agentEventHandler);
-		ac_Button.setOnAction(centerEventHandler);
-		fs_Button.setOnAction(centerEventHandler);
-		po_Button.setOnAction(centerEventHandler);
-		exec_Button.setOnAction(executeEventHandler);
+			agentPanel.setVisible(true);
+			centerPanel.setVisible(false);
+		}else {
+			agentPanel.setVisible(false);
+			centerPanel.setVisible(true);
+		}
 	}
 
 	private void changeConfig(Module module) {

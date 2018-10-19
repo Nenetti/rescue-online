@@ -38,19 +38,13 @@ public class Main_Client extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		NodeFX nodeFX=NodeFX.readFXML("./stage.fxml");
 
-	
 		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-master/src");
 		ModuleConfig config=new ModuleConfig(nodeFX, classFiles);
-
+		
 		Scene scene=new Scene(nodeFX.root);
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
-
-	
-
-
-
 
 	public static void main(String[] args) throws Exception {
 		launch(args);

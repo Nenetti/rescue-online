@@ -5,12 +5,15 @@ package module;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -37,6 +40,14 @@ public class NodeFX {
 		this.root=root;
 		getAllNodes(root);
 	}
+	
+	@SuppressWarnings("unchecked")
+	public <T extends Node> HashSet<T> getAllNode(Class<T> classT){
+		return new HashSet<>(nodeMap.values().stream()
+				.filter(t -> t.getClass()==classT)
+				.map(t -> (T)t)
+				.collect(Collectors.toSet()));
+	} 
 	
 	public HashMap<String, Node> getNodeMap() {
 		return nodeMap;
@@ -102,7 +113,7 @@ public class NodeFX {
 	
 	private void setNodes(List<Node> nodes) {
 		for(Node node:nodes) {
-			if(node.getId()!=null) {
+			if(node!=null&&node.getId()!=null) {
 				nodeMap.put(node.getId(), node);
 			}
 		}
