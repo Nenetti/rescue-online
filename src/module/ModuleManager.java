@@ -1,6 +1,8 @@
 package module;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,14 +20,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ConstraintsBase;
-import module.ModuleConfig.AgentConfig.CommandExecutor;
-import module.ModuleConfig.AgentConfig.CommandExecutorScout;
-import module.ModuleConfig.AgentConfig.Detector;
-import module.ModuleConfig.AgentConfig.ExtAction;
-import module.ModuleConfig.AgentConfig.ExtActionMove;
-import module.ModuleConfig.AgentConfig.Search;
+import module.ModuleManager.AgentConfig.CommandExecutor;
+import module.ModuleManager.AgentConfig.CommandExecutorScout;
+import module.ModuleManager.AgentConfig.Detector;
+import module.ModuleManager.AgentConfig.ExtAction;
+import module.ModuleManager.AgentConfig.ExtActionMove;
+import module.ModuleManager.AgentConfig.Search;
 
-public class ModuleConfig {
+public class ModuleManager {
 
 	public static enum Module{
 		AT,
@@ -38,6 +40,8 @@ public class ModuleConfig {
 
 	private static final String AGENT_PANEL_ID = "AgentPanel";
 	private static final String CENTER_PANEL_ID = "CenterPanel";
+	private String modulePath=System.getProperty("user.home")+"/git/sample-master/config/";
+
 
 	public AnchorPane agentPanel;
 	public AnchorPane centerPanel;
@@ -45,19 +49,23 @@ public class ModuleConfig {
 	public HashSet<ComboBox<String>> comboBoxs;
 
 	public ComboBox<String> detector;
-	public ComboBox<String> search;
-	public ComboBox<String> extAction;
-	public ComboBox<String> extActionMove;
-	public ComboBox<String> commandExecutor;
-	public ComboBox<String> commandExecutorPathPlanning;
-	public ComboBox<String> commandExecutorScout;
-	public ComboBox<String> commandExecutorScoutPathPlanning;
 	public ComboBox<String> detectorClustering;
 	public ComboBox<String> detectorPathPlanning;
-	public ComboBox<String> extActionPathPlanning;
-	public ComboBox<String> extActionMovePathPlanning;
-	public ComboBox<String> searchPathPlanning;
+	public ComboBox<String> search;
 	public ComboBox<String> searchClustering;
+	public ComboBox<String> searchPathPlanning;
+	public ComboBox<String> extAction;
+	public ComboBox<String> extActionPathPlanning;
+	public ComboBox<String> extActionMove;
+	public ComboBox<String> extActionMovePathPlanning;
+	public ComboBox<String> commandExecutor;
+	public ComboBox<String> commandExecutorPathPlanning;
+	public ComboBox<String> commandExecutorExtAction;
+	public ComboBox<String> commandExecutorActionExtMove;
+	public ComboBox<String> commandExecutorScout;
+	public ComboBox<String> commandExecutorScoutPathPlanning;
+	public ComboBox<String> commandExecutorScoutExtAction;
+
 	public ComboBox<String> targetAllocator;
 	public ComboBox<String> commandPicker;
 
@@ -102,7 +110,7 @@ public class ModuleConfig {
 	private HashMap<Module, AgentConfig> agentConfigs = new HashMap<>();
 	private HashMap<Module, CenterConfig> centerConfigs = new HashMap<>();
 
-	public ModuleConfig(NodeFX nodeFX, List<ClassFile> files) {
+	public ModuleManager(NodeFX nodeFX, List<ClassFile> files) {
 
 		agentConfigs.put(Module.AT, new AgentConfig("AT"));
 		agentConfigs.put(Module.FB, new AgentConfig("FB"));
@@ -113,7 +121,7 @@ public class ModuleConfig {
 
 
 		setupModuleList(files);
-		setupConfig(System.getProperty("user.home")+"/git/sample-master/config/module_sample.cfg");
+		setupConfig(modulePath+"module_sample.cfg");
 
 		setupGUI(nodeFX);
 		updateConfig(Module.AT);
@@ -122,6 +130,116 @@ public class ModuleConfig {
 		updateGUI(Module.AT);
 
 	}
+
+	/******************************************************************************************************************************************************
+	 * 
+	 * JAVFX関連の初期設定
+	 * 
+	 * @param nodeFX
+	 */
+
+	@SuppressWarnings("unchecked")
+	private void setupGUI(NodeFX nodeFX) {
+		at_Tab = nodeFX.getTab(Module.AT.toString());
+		fb_Tab = nodeFX.getTab(Module.FB.toString());
+		pf_Tab = nodeFX.getTab(Module.PF.toString());
+		ac_Tab = nodeFX.getTab(Module.AC.toString());
+		fs_Tab = nodeFX.getTab(Module.FS.toString());
+		po_Tab = nodeFX.getTab(Module.PO.toString());
+		agentPanel = nodeFX.getAnchorPane(AGENT_PANEL_ID);
+		centerPanel = nodeFX.getAnchorPane(CENTER_PANEL_ID);
+		exec_Button = nodeFX.getButton("Execute");
+
+		detector = (ComboBox<String>) nodeFX.getNode("Detector_Box");
+		detectorClustering = (ComboBox<String>) nodeFX.getNode("Clustering_Box");
+		detectorPathPlanning = (ComboBox<String>) nodeFX.getNode("DetectorPathPlanning_Box");
+
+		search = (ComboBox<String>) nodeFX.getNode("Search_Box");
+		searchClustering = (ComboBox<String>) nodeFX.getNode("SearchClustering_Box");
+		searchPathPlanning = (ComboBox<String>) nodeFX.getNode("SearchPathPlanning_Box");
+
+		extAction = (ComboBox<String>) nodeFX.getNode("ExtAction_Box");
+		extActionPathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtPathPlanning_Box");
+		extActionMove = (ComboBox<String>) nodeFX.getNode("ActionExtMove_Box");
+		extActionMovePathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtMovePathPlanning_Box");
+
+		commandExecutor = (ComboBox<String>) nodeFX.getNode("CommandExecutor_Box");
+		commandExecutorPathPlanning = (ComboBox<String>) nodeFX.getNode("CommandExecutorPathPlanning_Box");
+		commandExecutorExtAction = (ComboBox<String>) nodeFX.getNode("CommandExecutorExtAction_Box");
+		commandExecutorActionExtMove = (ComboBox<String>) nodeFX.getNode("CommandExecutorActionExtMove_Box");
+
+		commandExecutorScout = (ComboBox<String>) nodeFX.getNode("CommandExecutorScout_Box");
+		commandExecutorScoutPathPlanning = (ComboBox<String>) nodeFX.getNode("CommandExecutorScoutPathPlanning_Box");
+		commandExecutorScoutExtAction = (ComboBox<String>) nodeFX.getNode("CommandExecutorScoutExtAction_Box");
+
+		commandPicker = (ComboBox<String>) nodeFX.getNode("CommandPicker_Box");
+		targetAllocator = (ComboBox<String>) nodeFX.getNode("TargetAllocator_Box");
+
+		tabPane = nodeFX.getTabPane("TabPane");
+
+
+		comboBoxs=nodeFX.getAllNode(ComboBox.class).stream().map(t->(ComboBox<String>)t).collect(Collectors.toCollection(HashSet::new));
+
+		comboBoxs.stream().forEach(t -> t.setStyle(t.getStyle()+" "+"-fx-font: 15px \"System\";"));
+		agentPanel.setVisible(true);
+		centerPanel.setVisible(false);
+		setupEventHandler();
+	}
+
+	private void setupEventHandler() {
+		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+			@Override
+			public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
+				Module oldModule=Module.valueOf(oldTab.getId());
+				Module newModule=Module.valueOf(newTab.getId());
+				saveConfig(oldModule);
+				updateConfig(newModule);
+				changeConfig(newModule);
+				updateGUI(newModule);
+			}
+		});
+		exec_Button.setOnAction((ActionEvent e)->{
+			output();
+		});
+	}
+
+	/******************************************************************************************************************************************************
+	 * 
+	 * 選択項目ごとでGUIの設定を変更
+	 * 
+	 * @param module
+	 */
+
+	private void updateGUI(Module module) {
+		if(module==Module.AT||module==Module.FB||module==Module.PF) {
+			switch (module) {
+			case AT:
+			case FB:
+				detectorClustering.setDisable(false);
+				detectorPathPlanning.setDisable(true);
+				commandExecutorScoutExtAction.setDisable(true);
+				break;
+			case PF:
+				detectorClustering.setDisable(true);
+				detectorPathPlanning.setDisable(false);
+				commandExecutorScoutExtAction.setDisable(false);
+				break;
+			}
+			agentPanel.setVisible(true);
+			centerPanel.setVisible(false);
+		}else {
+			agentPanel.setVisible(false);
+			centerPanel.setVisible(true);
+		}
+	}
+
+
+	/******************************************************************************************************************************************************
+	 * 
+	 * モジュールコンフィグの Sample の読み込み
+	 * 
+	 * @param filePath
+	 */
 
 	@SuppressWarnings("incomplete-switch")
 	private void setupConfig(String filePath) {
@@ -135,7 +253,7 @@ public class ModuleConfig {
 				String detector=null;
 				String extAction=null;
 				String agentType=null;
-				
+
 				switch (module) {
 				case AT:
 					tactics="TacticsAmbulanceTeam";
@@ -144,51 +262,40 @@ public class ModuleConfig {
 					agentType="Ambulance";
 					break;
 				case FB:
-					agent.detector.classFile=detectors.get(ClassFile.toClassName(map.get("TacticsFireBrigade.BuildingDetector")));
-					agent.search.classFile=searchs.get(ClassFile.toClassName(map.get("TacticsFireBrigade.Search")));
-					agent.extAction.classFile=extActions.get(ClassFile.toClassName(map.get("TacticsFireBrigade.ActionFireFighting")));
-					agent.extActionMove.classFile=extActions.get(ClassFile.toClassName(map.get("TacticsFireBrigade.ActionExtMove")));
-					agent.commandExecutor.classFile=commandExecutors.get(ClassFile.toClassName(map.get("TacticsFireBrigade.CommandExecutorFire")));
-					agent.commandExecutorScout.classFile=commandExecutorsScout.get(ClassFile.toClassName(map.get("TacticsFireBrigade.CommandExecutorScout")));
-					agent.search.clustering=clusterings.get(ClassFile.toClassName(map.get(agent.search.classFile.className+"."+"Clustering.Fire")));
-					agent.commandExecutor.extAction=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutor.classFile.className+"."+"ActionFireFighting")));
-					agent.detector.clustering=clusterings.get(ClassFile.toClassName(map.get(agent.detector.classFile.className+"."+"Clustering")));
+					tactics="TacticsFireBrigade";
+					detector="BuildingDetector";
+					extAction="ActionFireFighting";
+					agentType="Fire";
 					break;
 				case PF:
-					agent.detector.classFile=detectors.get(ClassFile.toClassName(map.get("TacticsPoliceForce.RoadDetector")));
-					agent.search.classFile=searchs.get(ClassFile.toClassName(map.get("TacticsPoliceForce.Search")));
-					agent.extAction.classFile=extActions.get(ClassFile.toClassName(map.get("TacticsPoliceForce.ActionExtClear")));
-					agent.extActionMove.classFile=extActions.get(ClassFile.toClassName(map.get("TacticsPoliceForce.ActionExtMove")));
-					agent.commandExecutor.classFile=commandExecutors.get(ClassFile.toClassName(map.get("TacticsPoliceForce.CommandExecutorPolice")));
-					agent.commandExecutorScout.classFile=commandExecutorsScout.get(ClassFile.toClassName(map.get("TacticsPoliceForce.CommandExecutorScout")));
-					agent.search.clustering=clusterings.get(ClassFile.toClassName(map.get(agent.search.classFile.className+"."+"Clustering.Police")));
-					agent.commandExecutor.extAction=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutor.classFile.className+"."+"ActionExtClear")));
-					agent.detector.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.detector.classFile.className+"."+"PathPlanning")));
+					tactics="TacticsPoliceForce";
+					detector="RoadDetector";
+					extAction="ActionExtClear";
+					agentType="Police";
 					break;
 				}
 				agent.detector.classFile=detectors.get(ClassFile.toClassName(map.get(tactics+"."+detector)));
 				agent.detector.clustering=clusterings.get(ClassFile.toClassName(map.get(agent.detector.classFile.className+"."+"Clustering")));
-				
+				agent.detector.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.detector.classFile.className+"."+"PathPlanning")));
+
 				agent.search.classFile=searchs.get(ClassFile.toClassName(map.get(tactics+".Search")));
 				agent.search.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.search.classFile.className+"."+"PathPlanning.Ambulance")));
 				agent.search.clustering=clusterings.get(ClassFile.toClassName(map.get(agent.search.classFile.className+"."+"Clustering."+agentType)));
-				
+
 				agent.extAction.classFile=extActions.get(ClassFile.toClassName(map.get(tactics+"."+extAction)));
 				agent.extAction.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.extAction.classFile.className+"."+"PathPlanning")));
-				
+
 				agent.extActionMove.classFile=extActions.get(ClassFile.toClassName(map.get(tactics+".ActionExtMove")));
 				agent.extActionMove.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.extActionMove.classFile.className+"."+"PathPlanning")));
-				
+
 				agent.commandExecutor.classFile=commandExecutors.get(ClassFile.toClassName(map.get(tactics+".CommandExecutor"+agentType)));
 				agent.commandExecutor.extAction=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutor.classFile.className+"."+extAction)));
 				agent.commandExecutor.extActionMove=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutor.classFile.className+"."+"ActionExtMove")));
 				agent.commandExecutor.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.commandExecutor.classFile.className+"."+"PathPlanning")));
-				
+
 				agent.commandExecutorScout.classFile=commandExecutorsScout.get(ClassFile.toClassName(map.get(tactics+".CommandExecutorScout")));
 				agent.commandExecutorScout.extAction=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutorScout.classFile.className+"."+extAction)));
-				agent.commandExecutorScout.extActionMove=extActions.get(ClassFile.toClassName(map.get(agent.commandExecutorScout.classFile.className+"."+"ActionExtMove")));
 				agent.commandExecutorScout.pathPlanning=pathPlannings.get(ClassFile.toClassName(map.get(agent.commandExecutorScout.classFile.className+"."+"PathPlanning")));
-				
 				break;
 			case AC:case FS:case PO:
 				CenterConfig center=centerConfigs.get(module);
@@ -211,6 +318,12 @@ public class ModuleConfig {
 		}
 	}
 
+	/******************************************************************************************************************************************************
+	 * 
+	 * 各クラスファイルをスーパークラスから分類
+	 * 
+	 * @param files
+	 */
 
 	private void setupModuleList(List<ClassFile> files) {
 		for (ClassFile classFile : files) {
@@ -287,143 +400,108 @@ public class ModuleConfig {
 		commandExecutors.putAll(commandExecutors_CommandPolice);
 	}
 
+	/******************************************************************************************************************************************************
+	 * 
+	 * コンボボックス内のアイテムをエージェンごとで更新
+	 * 
+	 * @param module
+	 */
+
 	private void updateConfig(Module module) {
 
 		for(ComboBox<String> box: comboBoxs) {
 			box.getItems().clear();
-		}
+		}		
 		switch (module) {
-		case AT:
-			detector.getItems().addAll(humanDetectors.keySet());
-			commandExecutor.getItems().addAll(commandExecutors_CommandAmbulance.keySet());
-			break;
-		case FB:
-			detector.getItems().addAll(buildingDetectors.keySet());
-			commandExecutor.getItems().addAll(commandExecutors_CommandFire.keySet());
-			break;
-		case PF:
-			detector.getItems().addAll(roadDetectors.keySet());
-			commandExecutor.getItems().addAll(commandExecutors_CommandPolice.keySet());
-			break;
-		case AC:
-			targetAllocator.getItems().addAll(ambulanceTargetAllocators.keySet());
-			break;
-		case FS:
-			targetAllocator.getItems().addAll(fireTargetAllocators.keySet());
-			break;
-		case PO:
-			targetAllocator.getItems().addAll(policeTargetAllocators.keySet());
-			break;
-		}
-		search.getItems().addAll(searchs.keySet());
-		extAction.getItems().addAll(extActions.keySet());
-		extActionMove.getItems().addAll(extActions.keySet());
-		commandExecutorScout.getItems().addAll(commandExecutorsScout.keySet());
-		detectorClustering.getItems().addAll(clusterings.keySet());
-		searchClustering.getItems().addAll(clusterings.keySet());
-		searchPathPlanning.getItems().addAll(pathPlannings.keySet());
-		detectorPathPlanning.getItems().addAll(pathPlannings.keySet());
-		extActionPathPlanning.getItems().addAll(pathPlannings.keySet());
-		extActionMovePathPlanning.getItems().addAll(pathPlannings.keySet());
-		commandPicker.getItems().addAll(commandPickers.keySet());
-		commandExecutorPathPlanning.getItems().addAll(pathPlannings.keySet());
-		commandExecutorScoutPathPlanning.getItems().addAll(pathPlannings.keySet());
-	}
-
-	@SuppressWarnings("unchecked")
-	private void setupGUI(NodeFX nodeFX) {
-		at_Tab = nodeFX.getTab(Module.AT.toString());
-		fb_Tab = nodeFX.getTab(Module.FB.toString());
-		pf_Tab = nodeFX.getTab(Module.PF.toString());
-		ac_Tab = nodeFX.getTab(Module.AC.toString());
-		fs_Tab = nodeFX.getTab(Module.FS.toString());
-		po_Tab = nodeFX.getTab(Module.PO.toString());
-		agentPanel = nodeFX.getAnchorPane(AGENT_PANEL_ID);
-		centerPanel = nodeFX.getAnchorPane(CENTER_PANEL_ID);
-		exec_Button = nodeFX.getButton("Execute");
-
-		detector = (ComboBox<String>) nodeFX.getNode("Detector_Box");
-		search = (ComboBox<String>) nodeFX.getNode("Search_Box");
-		extAction = (ComboBox<String>) nodeFX.getNode("ExtAction_Box");
-		extActionMove = (ComboBox<String>) nodeFX.getNode("ActionExtMove_Box");
-		commandExecutor = (ComboBox<String>) nodeFX.getNode("CommandExecutor_Box");
-		commandExecutorScout = (ComboBox<String>) nodeFX.getNode("CommandExecutorScout_Box");
-		commandExecutorPathPlanning = (ComboBox<String>) nodeFX.getNode("CommandExecutorPathPlanning_Box");
-		commandExecutorScoutPathPlanning = (ComboBox<String>) nodeFX.getNode("CommandExecutorScoutPathPlanning_Box");
-		detectorClustering = (ComboBox<String>) nodeFX.getNode("Clustering_Box");
-		searchClustering = (ComboBox<String>) nodeFX.getNode("SearchClustering_Box");
-		detectorPathPlanning = (ComboBox<String>) nodeFX.getNode("DetectorPathPlanning_Box");
-		extActionPathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtPathPlanning_Box");
-		extActionMovePathPlanning = (ComboBox<String>) nodeFX.getNode("ActionExtMovePathPlanning_Box");
-		searchPathPlanning = (ComboBox<String>) nodeFX.getNode("SearchPathPlanning_Box");
-		commandPicker = (ComboBox<String>) nodeFX.getNode("CommandPicker_Box");
-		targetAllocator = (ComboBox<String>) nodeFX.getNode("TargetAllocator_Box");
-		tabPane = nodeFX.getTabPane("TabPane");
-
-		comboBoxs=nodeFX.getAllNode(ComboBox.class).stream().map(t->(ComboBox<String>)t).collect(Collectors.toCollection(HashSet::new));
-
-		comboBoxs.stream().forEach(t -> t.setStyle(t.getStyle()+" "+"-fx-font: 15px \"System\";"));
-		agentPanel.setVisible(true);
-		centerPanel.setVisible(false);
-		setupEventHandler();
-	}
-
-	private void setupEventHandler() {
-		tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-			@Override
-			public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
-				Module oldModule=Module.valueOf(oldTab.getId());
-				Module newModule=Module.valueOf(newTab.getId());
-				saveConfig(oldModule);
-				updateConfig(newModule);
-				changeConfig(newModule);
-				updateGUI(newModule);
-			}
-		});
-		exec_Button.setOnAction((ActionEvent e)->{
-			output();
-		});
-	}
-
-	private void updateGUI(Module module) {
-		if(module==Module.AT||module==Module.FB||module==Module.PF) {
+		case AT:case FB:case PF:
+			HashMap<String, ClassFile> detectors=null;
+			HashMap<String, ClassFile> commandExecutors=null;
 			switch (module) {
 			case AT:
+				detectors=humanDetectors;
+				commandExecutors=commandExecutors_CommandAmbulance;
+				break;
 			case FB:
-				detectorClustering.setDisable(false);
-				detectorPathPlanning.setDisable(true);
+				detectors=buildingDetectors;
+				commandExecutors=commandExecutors_CommandFire;
 				break;
 			case PF:
-				detectorClustering.setDisable(true);
-				detectorPathPlanning.setDisable(false);
+				detectors=roadDetectors;
+				commandExecutors=commandExecutors_CommandPolice;
 				break;
 			}
-			agentPanel.setVisible(true);
-			centerPanel.setVisible(false);
-		}else {
-			agentPanel.setVisible(false);
-			centerPanel.setVisible(true);
+			detector.getItems().addAll(detectors.keySet());
+			detectorClustering.getItems().addAll(clusterings.keySet());
+			detectorPathPlanning.getItems().addAll(pathPlannings.keySet());
+
+			search.getItems().addAll(searchs.keySet());
+			searchClustering.getItems().addAll(clusterings.keySet());
+			searchPathPlanning.getItems().addAll(pathPlannings.keySet());
+
+			extAction.getItems().addAll(extActions.keySet());
+			extActionPathPlanning.getItems().addAll(pathPlannings.keySet());
+			extActionMove.getItems().addAll(extActions.keySet());
+			extActionMovePathPlanning.getItems().addAll(pathPlannings.keySet());
+
+			commandExecutor.getItems().addAll(commandExecutors.keySet());
+			commandExecutorPathPlanning.getItems().addAll(pathPlannings.keySet());
+			commandExecutorExtAction.getItems().addAll(extActions.keySet());
+			commandExecutorActionExtMove.getItems().addAll(extActions.keySet());
+
+			commandExecutorScout.getItems().addAll(commandExecutorsScout.keySet());
+			commandExecutorScoutPathPlanning.getItems().addAll(pathPlannings.keySet());
+			commandExecutorScoutExtAction.getItems().addAll(extActions.keySet());
+			break;
+		case AC:case FS:case PO:
+			HashMap<String, ClassFile> targetAllocators=null;
+			switch (module) {
+			case AC:
+				targetAllocators=ambulanceTargetAllocators;
+				break;
+			case FS:
+				targetAllocators=fireTargetAllocators;
+				break;
+			case PO:
+				targetAllocators=policeTargetAllocators;
+				break;
+			}
+			targetAllocator.getItems().addAll(targetAllocators.keySet());
+			commandPicker.getItems().addAll(commandPickers.keySet());
+			break;
 		}
 	}
+
+	/******************************************************************************************************************************************************
+	 * 
+	 * 保存データをコンボボックスに反映
+	 * 
+	 * @param module
+	 */
 
 	private void changeConfig(Module module) {
 		AgentConfig agentConfig = agentConfigs.get(module);
 		CenterConfig centerConfig = centerConfigs.get(module);
 		if (agentConfig != null) {
 			set(detector, agentConfig.detector.classFile);
-			set(search, agentConfig.search.classFile);
-			set(extAction, agentConfig.extAction.classFile);
-			set(extActionMove, agentConfig.extActionMove.classFile);
-			set(commandExecutor, agentConfig.commandExecutor.classFile);
-			set(commandExecutorScout, agentConfig.commandExecutorScout.classFile);
 			set(detectorClustering, agentConfig.detector.clustering);
-			set(searchClustering, agentConfig.search.clustering);
 			set(detectorPathPlanning, agentConfig.detector.pathPlanning);
-			set(extActionPathPlanning, agentConfig.extAction.pathPlanning);
-			set(extActionMovePathPlanning, agentConfig.extActionMove.pathPlanning);
+
+			set(search, agentConfig.search.classFile);
+			set(searchClustering, agentConfig.search.clustering);
 			set(searchPathPlanning, agentConfig.search.pathPlanning);
+
+			set(extAction, agentConfig.extAction.classFile);
+			set(extActionPathPlanning, agentConfig.extAction.pathPlanning);
+			set(extActionMove, agentConfig.extActionMove.classFile);
+			set(extActionMovePathPlanning, agentConfig.extActionMove.pathPlanning);
+
+			set(commandExecutor, agentConfig.commandExecutor.classFile);
 			set(commandExecutorPathPlanning, agentConfig.commandExecutor.pathPlanning);
+			set(commandExecutorExtAction, agentConfig.commandExecutor.extAction);
+			set(commandExecutorActionExtMove, agentConfig.commandExecutor.extActionMove);
+			set(commandExecutorScout, agentConfig.commandExecutorScout.classFile);
 			set(commandExecutorScoutPathPlanning, agentConfig.commandExecutorScout.pathPlanning);
+			set(commandExecutorScoutExtAction, agentConfig.commandExecutorScout.extAction);
 		} else if (centerConfig != null) {
 			set(targetAllocator, centerConfig.targetAllocator);
 			set(commandPicker, centerConfig.commandPicker);
@@ -441,6 +519,13 @@ public class ModuleConfig {
 		}
 	}
 
+	/******************************************************************************************************************************************************
+	 * 
+	 * 設定した各モジュールを保存
+	 * 
+	 * @param module
+	 */
+
 	private void saveConfig(Module module) {
 		AgentConfig agentConfig = agentConfigs.get(module);
 		CenterConfig centerConfig = centerConfigs.get(module);
@@ -449,11 +534,8 @@ public class ModuleConfig {
 			agentConfig.search.set(searchs.get(getSelectItem(search)), pathPlannings.get(getSelectItem(searchPathPlanning)), clusterings.get(getSelectItem(searchClustering)));
 			agentConfig.extAction.set(extActions.get(getSelectItem(extAction)), pathPlannings.get(getSelectItem(extActionPathPlanning)));
 			agentConfig.extActionMove.set(extActions.get(getSelectItem(extActionMove)), pathPlannings.get(getSelectItem(extActionMovePathPlanning)));
-			agentConfig.commandExecutor.set(commandExecutors.get(getSelectItem(commandExecutor)), pathPlannings.get(getSelectItem(commandExecutorPathPlanning)), null, null);
-			agentConfig.commandExecutorScout.set(commandExecutorsScout.get(getSelectItem(commandExecutorScout)), pathPlannings.get(getSelectItem(commandExecutorScoutPathPlanning)), null, null);
-			//後日修正予定
-			agentConfig.commandExecutor.extAction=agentConfig.extAction.classFile;
-			agentConfig.commandExecutor.extActionMove=agentConfig.extActionMove.classFile;
+			agentConfig.commandExecutor.set(commandExecutors.get(getSelectItem(commandExecutor)), pathPlannings.get(getSelectItem(commandExecutorPathPlanning)), extActions.get(getSelectItem(commandExecutorExtAction)), extActions.get(getSelectItem(commandExecutorActionExtMove)));
+			agentConfig.commandExecutorScout.set(commandExecutorsScout.get(getSelectItem(commandExecutorScout)), pathPlannings.get(getSelectItem(commandExecutorScoutPathPlanning)), extActions.get(getSelectItem(commandExecutorScoutExtAction)));
 		} else if (centerConfig != null) {
 			centerConfig.set(
 					targetAllocators.get(targetAllocator.getSelectionModel().getSelectedItem()),
@@ -465,75 +547,116 @@ public class ModuleConfig {
 		return comboBox.getSelectionModel().getSelectedItem();
 	}
 
+	/******************************************************************************************************************************************************
+	 * 
+	 * 保存データを外部に保存する
+	 * 
+	 */
+
 	public void output() {
 		HashMap<String, String> map =new HashMap<>();
 		for(Module module: agentConfigs.keySet()) {
 			AgentConfig agent=agentConfigs.get(module);
+			CenterConfig center=centerConfigs.get(module);
 			String tactics=null;
 			String detector=null;
 			String extAction=null;
-			String commandExecutor=null;
-			String extActionMove="ActionExtMove";
-			String search="Search";
-			String commandExecutorScout="CommandExecutorScout";
-			String type=null;
+			String agentType=null;
+			String targetAllocator=null;
+			String commandPicker=null;
 			switch (module) {
-			case AT:
-				type="Ambulance";
-				tactics="TacticsAmbulanceTeam";
-				detector="HumanDetector";
-				extAction="ActionTransport";
-				commandExecutor="CommandExecutorAmbulance";
+			case AT:case FB:case PF:
+				switch (module) {
+				case AT:
+					tactics="TacticsAmbulanceTeam";
+					detector="HumanDetector";
+					extAction="ActionTransport";
+					agentType="Ambulance";
+					break;
+				case FB:
+					tactics="TacticsFireBrigade";
+					detector="BuildingDetector";
+					extAction="ActionFireFighting";
+					agentType="Fire";
+					break;
+				case PF:
+					tactics="TacticsPoliceForce";
+					detector="RoadDetector";
+					extAction="ActionExtClear";
+					agentType="Police";
+					break;
+				}
+				map.put(tactics+"."+detector, agent.detector.classFile.toOutputFormat());
+				if(agent.detector.clustering!=null) map.put(agent.detector.clustering.className+"."+"Clustering", agent.detector.clustering.toOutputFormat());
+				if(agent.detector.pathPlanning!=null) map.put(agent.detector.pathPlanning.className+"."+"PathPlanning", agent.detector.pathPlanning.toOutputFormat());
+
+				map.put(tactics+"."+"Search", agent.search.classFile.toOutputFormat());
+				map.put(agent.search.pathPlanning.className+"."+"PathPlanning"+"."+agentType, agent.search.pathPlanning.toOutputFormat());
+				map.put(agent.search.clustering.className+"."+"Clustering"+"."+agentType, agent.search.clustering.toOutputFormat());
+
+				map.put(tactics+"."+extAction, agent.extAction.classFile.toOutputFormat());
+				map.put(agent.extAction.pathPlanning.className+"."+"PathPlanning", agent.extAction.pathPlanning.toOutputFormat());
+				map.put(tactics+"."+"ActionExtMove", agent.extActionMove.classFile.toOutputFormat());
+				map.put(agent.extActionMove.pathPlanning.className+"."+"PathPlanning", agent.extActionMove.pathPlanning.toOutputFormat());
+
+				map.put(tactics+"."+"CommandExecutor"+agentType, agent.commandExecutor.classFile.toOutputFormat());
+				map.put(agent.commandExecutor.pathPlanning.className+"."+"PathPlanning", agent.commandExecutor.classFile.toOutputFormat());
+				map.put(agent.commandExecutor.extAction.className+"."+extAction, agent.commandExecutor.extAction.toOutputFormat());
+				map.put(agent.commandExecutor.extActionMove.className+"."+"ActionExtMove", agent.commandExecutor.extActionMove.toOutputFormat());
+
+				map.put(tactics+"."+"CommandExecutorScout", agent.commandExecutorScout.classFile.toOutputFormat());
+				map.put(agent.commandExecutorScout.pathPlanning.className+"."+"PathPlanning", agent.commandExecutorScout.classFile.toOutputFormat());
+				if(agent.commandExecutorScout.extAction!=null) map.put(agent.commandExecutorScout.extAction.className+"."+extAction, agent.commandExecutorScout.extAction.toOutputFormat());
 				break;
-			case FB:
-				type="Fire";
-				tactics="TacticsFireBrigade";
-				detector="BuildingDetector";
-				extAction="ActionFireFighting";
-				commandExecutor="CommandExecutorFire";
-				break;
-			case PF:
-				type="Police";
-				tactics="TacticsPoliceForce";
-				detector="RoadDetector";
-				extAction="ActionExtClear";
-				commandExecutor="CommandExecutorPolice";
+			case AC:case FS:case PO:
+				switch (module) {
+				case AC:
+					targetAllocator="TacticsAmbulanceCentre.TargetAllocator";
+					commandPicker="TacticsAmbulanceCentre.CommandPicker";
+					break;
+				case FS:
+					targetAllocator="TacticsFireStation.TargetAllocator";
+					commandPicker="TacticsFireStation.CommandPicker";
+					break;
+				case PO:
+					targetAllocator="TacticsPoliceOffice.TargetAllocator";
+					commandPicker="TacticsPoliceOffice.CommandPicker";
+					break;
+				}
+				map.put(targetAllocator, center.targetAllocator.toOutputFormat());
+				map.put(commandPicker, center.commandPicker.toOutputFormat());
 				break;
 			}
+			outputModuleManager(map);
 
-			map.put(tactics+"."+detector, agent.detector.classFile.toOutputFormat());
-			map.put(tactics+"."+search, agent.search.classFile.toOutputFormat());
-			map.put(tactics+"."+extAction, agent.extAction.classFile.toOutputFormat());
-			map.put(tactics+"."+extActionMove, agent.extActionMove.classFile.toOutputFormat());
-			map.put(tactics+"."+commandExecutor, agent.commandExecutor.classFile.toOutputFormat());
-			map.put(tactics+"."+commandExecutorScout, agent.commandExecutorScout.classFile.toOutputFormat());
-
-			if(agent.detector.clustering!=null) map.put(agent.detector.clustering.className+"."+"Clustering", agent.detector.clustering.toOutputFormat());
-			if(agent.detector.pathPlanning!=null) map.put(agent.detector.pathPlanning.className+"."+"PathPlanning", agent.detector.pathPlanning.toOutputFormat());
-
-			map.put(agent.search.pathPlanning.className+"."+"PathPlanning"+"."+type, agent.search.pathPlanning.toOutputFormat());
-			map.put(agent.search.clustering.className+"."+"Clustering"+"."+type, agent.search.clustering.toOutputFormat());
-
-			map.put(agent.extAction.pathPlanning.className+"."+"PathPlanning", agent.extAction.pathPlanning.toOutputFormat());
-			map.put(agent.extActionMove.pathPlanning.className+"."+"PathPlanning", agent.extActionMove.pathPlanning.toOutputFormat());
-
-			map.put(agent.commandExecutor.pathPlanning.className+"."+"PathPlanning", agent.commandExecutor.classFile.toOutputFormat());
-			map.put(agent.commandExecutor.extAction.className+"."+extAction, agent.commandExecutor.extAction.toOutputFormat());
-			map.put(agent.commandExecutor.extActionMove.className+"."+extActionMove, agent.commandExecutor.extActionMove.toOutputFormat());
-			
-			
-			//map.put(agent.commandExecutorScout.pathPlanning.className+"."+"PathPlanning", agent.commandExecutorScout.classFile.toOutputFormat());
-			//map.put(agent.commandExecutorScout.extAction.className+"."+extAction, agent.commandExecutorScout.extAction.toOutputFormat());
-			//map.put(agent.commandExecutorScout.extActionMove.className+"."+extActionMove, agent.commandExecutorScout.extActionMove.toOutputFormat());
-			
+			if(agent!=null) {
+				HashSet<ClassFile> set=new HashSet<>();
+				set.add(agent.detector.classFile);
+				ModulePublisher publisher=new ModulePublisher();
+				publisher.publishModuleFile(set, "localhost", 9999);
+			}
 		}
-		
-		for(String key:map.keySet()) {
-			System.out.println(key+" : "+map.get(key));
-		}
-		
-		
 	}
+
+	private void outputModuleManager(HashMap<String, String> map) {
+		try {
+			BufferedWriter writer=new BufferedWriter(new FileWriter(new File(modulePath+"module.cfg")));
+			writer.write("Team.Name : rescue-online\n");
+			for(String key:map.keySet()) {
+				writer.write(key+" : "+map.get(key));
+				writer.newLine();
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/******************************************************************************************************************************************************/
+	//
+	//以下モデュール関係のクラス
+	//
+	/******************************************************************************************************************************************************/
 
 	public static class AgentConfig {
 
@@ -606,14 +729,12 @@ public class ModuleConfig {
 			public ClassFile classFile;
 			public ClassFile pathPlanning;
 			public ClassFile extAction;
-			public ClassFile extActionMove;
 			public CommandExecutorScout() {
 			}
-			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile extAction, ClassFile extActionMove) {
+			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile extAction) {
 				this.classFile=classFile;
 				this.pathPlanning=pathPlanning;
 				this.extAction=extAction;
-				this.extActionMove=extActionMove;
 			}
 		}
 
