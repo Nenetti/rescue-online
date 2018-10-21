@@ -7,12 +7,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import module.ModuleSocket;
+import module.ModuleSubscriber;
 
 public class Main_Server {
 
 
 	public static String SERVER_PATH=System.getProperty("user.home")+"/git/rcrs-server-master";
-	public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-master";
+	//public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-master";
+	public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-module";
 
 
 
@@ -24,23 +26,12 @@ public class Main_Server {
 
 
 	public static void main(String[] args) throws Exception{
-		while(true) {
-			ServerSocket serverSocket=new ServerSocket(9999);
-			Socket socket=serverSocket.accept();
-			System.out.println("接続");
-			BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String line;
-			while((line=reader.readLine())!=null) {
-				System.out.println(line);
-			}
-			System.out.println("終了");
-			ModuleSocket.waitClosed(socket);
-			serverSocket.close();
-			System.out.println("ソケット閉じ");
-		}
+		ModuleSubscriber subscriber=new ModuleSubscriber(SOURCE_PATH);
+		subscriber.subscribeModuleFile(9999);
 
 		//run("../maps/gml/test/map", "../maps/gml/test/config");
 	}
+	
 
 	public static void run(String mapDataPath, String mapConfigPath) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(()->{

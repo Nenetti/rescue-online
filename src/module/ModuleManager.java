@@ -129,6 +129,8 @@ public class ModuleManager {
 		changeConfig(Module.AT);
 		updateGUI(Module.AT);
 
+		output();
+
 	}
 
 	/******************************************************************************************************************************************************
@@ -527,19 +529,22 @@ public class ModuleManager {
 	 */
 
 	private void saveConfig(Module module) {
-		AgentConfig agentConfig = agentConfigs.get(module);
-		CenterConfig centerConfig = centerConfigs.get(module);
-		if (agentConfig != null) {
+		switch (module) {
+		case AT:case FB:case PF:
+			AgentConfig agentConfig = agentConfigs.get(module);
 			agentConfig.detector.set(detectors.get(getSelectItem(detector)), pathPlannings.get(getSelectItem(detectorPathPlanning)), clusterings.get(getSelectItem(detectorClustering)));
 			agentConfig.search.set(searchs.get(getSelectItem(search)), pathPlannings.get(getSelectItem(searchPathPlanning)), clusterings.get(getSelectItem(searchClustering)));
 			agentConfig.extAction.set(extActions.get(getSelectItem(extAction)), pathPlannings.get(getSelectItem(extActionPathPlanning)));
 			agentConfig.extActionMove.set(extActions.get(getSelectItem(extActionMove)), pathPlannings.get(getSelectItem(extActionMovePathPlanning)));
 			agentConfig.commandExecutor.set(commandExecutors.get(getSelectItem(commandExecutor)), pathPlannings.get(getSelectItem(commandExecutorPathPlanning)), extActions.get(getSelectItem(commandExecutorExtAction)), extActions.get(getSelectItem(commandExecutorActionExtMove)));
 			agentConfig.commandExecutorScout.set(commandExecutorsScout.get(getSelectItem(commandExecutorScout)), pathPlannings.get(getSelectItem(commandExecutorScoutPathPlanning)), extActions.get(getSelectItem(commandExecutorScoutExtAction)));
-		} else if (centerConfig != null) {
+			break;
+		case AC:case FS:case PO:
+			CenterConfig centerConfig = centerConfigs.get(module);
 			centerConfig.set(
 					targetAllocators.get(targetAllocator.getSelectionModel().getSelectedItem()),
 					commandPickers.get(commandPicker.getSelectionModel().getSelectedItem()));
+			break;
 		}
 	}
 
@@ -555,17 +560,15 @@ public class ModuleManager {
 
 	public void output() {
 		HashMap<String, String> map =new HashMap<>();
-		for(Module module: agentConfigs.keySet()) {
-			AgentConfig agent=agentConfigs.get(module);
-			CenterConfig center=centerConfigs.get(module);
+		HashSet<ClassFile> set=new HashSet<>();
+		for(Module module: Module.values()) {
 			String tactics=null;
 			String detector=null;
 			String extAction=null;
 			String agentType=null;
-			String targetAllocator=null;
-			String commandPicker=null;
 			switch (module) {
 			case AT:case FB:case PF:
+				AgentConfig agent=agentConfigs.get(module);
 				switch (module) {
 				case AT:
 					tactics="TacticsAmbulanceTeam";
@@ -607,8 +610,13 @@ public class ModuleManager {
 				map.put(tactics+"."+"CommandExecutorScout", agent.commandExecutorScout.classFile.toOutputFormat());
 				map.put(agent.commandExecutorScout.pathPlanning.className+"."+"PathPlanning", agent.commandExecutorScout.classFile.toOutputFormat());
 				if(agent.commandExecutorScout.extAction!=null) map.put(agent.commandExecutorScout.extAction.className+"."+extAction, agent.commandExecutorScout.extAction.toOutputFormat());
+				set.addAll(agent.getClassFiles());
 				break;
+				
 			case AC:case FS:case PO:
+				CenterConfig center=centerConfigs.get(module);
+				String targetAllocator=null;
+				String commandPicker=null;
 				switch (module) {
 				case AC:
 					targetAllocator="TacticsAmbulanceCentre.TargetAllocator";
@@ -625,17 +633,13 @@ public class ModuleManager {
 				}
 				map.put(targetAllocator, center.targetAllocator.toOutputFormat());
 				map.put(commandPicker, center.commandPicker.toOutputFormat());
+				set.addAll(center.getClassFiles());
 				break;
 			}
-			outputModuleManager(map);
-
-			if(agent!=null) {
-				HashSet<ClassFile> set=new HashSet<>();
-				set.add(agent.detector.classFile);
-				ModulePublisher publisher=new ModulePublisher();
-				publisher.publishModuleFile(set, "localhost", 9999);
-			}
 		}
+		outputModuleManager(map);
+		ModulePublisher publisher=new ModulePublisher();
+		publisher.publishModuleFile(set, "localhost", 9999);
 	}
 
 	private void outputModuleManager(HashMap<String, String> map) {
@@ -690,6 +694,32 @@ public class ModuleManager {
 
 		}
 
+		public static class Detector {
+			public ClassFile classFile;
+			public ClassFile pathPlanning;
+			public ClassFile clustering;
+			public Detector() {
+			}
+			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile clustering) {
+				this.classFile=classFile;
+				this.pathPlanning=pathPlanning;
+				this.clustering=clustering;
+			}
+		}
+
+		public static class Search {
+			public ClassFile classFile;
+			public ClassFile pathPlanning;
+			public ClassFile clustering;
+			public Search() {
+			}
+			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile clustering) {
+				this.classFile=classFile;
+				this.pathPlanning=pathPlanning;
+				this.clustering=clustering;
+			}
+		}
+
 		public static class ExtAction {
 			public ClassFile classFile;
 			public ClassFile pathPlanning;
@@ -712,18 +742,6 @@ public class ModuleManager {
 			}
 		}
 
-		public static class Search {
-			public ClassFile classFile;
-			public ClassFile pathPlanning;
-			public ClassFile clustering;
-			public Search() {
-			}
-			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile clustering) {
-				this.classFile=classFile;
-				this.pathPlanning=pathPlanning;
-				this.clustering=clustering;
-			}
-		}
 
 		public static class CommandExecutorScout{
 			public ClassFile classFile;
@@ -753,17 +771,30 @@ public class ModuleManager {
 			}
 		}
 
-		public static class Detector {
-			public ClassFile classFile;
-			public ClassFile pathPlanning;
-			public ClassFile clustering;
-			public Detector() {
-			}
-			public void set(ClassFile classFile, ClassFile pathPlanning, ClassFile clustering) {
-				this.classFile=classFile;
-				this.pathPlanning=pathPlanning;
-				this.clustering=clustering;
-			}
+		public HashSet<ClassFile> getClassFiles(){
+			HashSet<ClassFile> set=new HashSet<>();
+			set.add(detector.classFile);
+			if(detector.clustering!=null) set.add(detector.clustering);
+			if(detector.pathPlanning!=null) set.add(detector.pathPlanning);
+
+			set.add(search.classFile);
+			set.add(search.clustering);
+			set.add(search.pathPlanning);
+
+			set.add(extAction.classFile);
+			set.add(extAction.pathPlanning);
+			set.add(extActionMove.classFile);
+			set.add(extActionMove.pathPlanning);
+
+			set.add(commandExecutor.classFile);
+			set.add(commandExecutor.pathPlanning);
+			set.add(commandExecutor.extAction);
+			set.add(commandExecutor.extActionMove);
+
+			set.add(commandExecutorScout.classFile);
+			set.add(commandExecutorScout.pathPlanning);
+			if(commandExecutorScout.extAction!=null) set.add(commandExecutorScout.extAction);
+			return set;
 		}
 	}
 
@@ -780,6 +811,13 @@ public class ModuleManager {
 		public void set(ClassFile targetAllocator, ClassFile commandPicker) {
 			this.targetAllocator = targetAllocator;
 			this.commandPicker = commandPicker;
+		}
+
+		public HashSet<ClassFile> getClassFiles(){
+			HashSet<ClassFile> set=new HashSet<>();
+			set.add(targetAllocator);
+			set.add(commandPicker);
+			return set;
 		}
 	}
 

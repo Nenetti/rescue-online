@@ -45,14 +45,16 @@ public class ModulePublisher {
 	public void publishModuleFile(HashSet<ClassFile> set, String host, int port) {
 		try {
 			InetSocketAddress address=new InetSocketAddress(host, port);
+			int index=1, length=set.size();
 			for(ClassFile classFile:set) {
 				Socket socket=new Socket();
 				socket.connect(address, 10000);
 				BufferedReader reader=new BufferedReader(new FileReader(classFile.file));
 				BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-				String header=classFile.packagePath+"."+classFile.className;
+				String header=classFile.toOutputFormat();
 				String line;
 				writer.write(header);
+				writer.newLine();
 				while((line=reader.readLine())!=null) {
 					writer.write(line);
 					writer.newLine();
@@ -60,8 +62,9 @@ public class ModulePublisher {
 				reader.close();
 				writer.flush();
 				ModuleSocket.waitClosed(socket);
-				System.out.println(header);
+				System.out.println("書き込み完了: "+classFile.className+"("+index+"/"+length+")");
 				socket.close();
+				index++;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
