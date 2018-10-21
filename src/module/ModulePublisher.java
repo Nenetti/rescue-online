@@ -114,19 +114,6 @@ public class ModulePublisher {
 			}
 		}
 		return;
-		
-		
-		
-		/*
-		try {
-			
-			
-			String shell=System.getProperty("user.home")+"/git/sample-nenetti/git_https.sh";
-			ProcessBuilder processBuilder=new ProcessBuilder("bash", shell, "nenetti", "0.1", "Ri--one", "Me1gen_Da5e81").inheritIO();
-			Process process=processBuilder.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
 	}
 	
 	private void writeConfig(String filePath, HashMap<String, String> map) {

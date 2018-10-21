@@ -106,7 +106,6 @@ public class ModuleManager {
 
 	public HashMap<String, ClassFile> commandPickers = new HashMap<>();
 
-
 	private HashMap<Module, AgentConfig> agentConfigs = new HashMap<>();
 	private HashMap<Module, CenterConfig> centerConfigs = new HashMap<>();
 
@@ -128,7 +127,6 @@ public class ModuleManager {
 
 		changeConfig(Module.AT);
 		updateGUI(Module.AT);
-
 
 	}
 
