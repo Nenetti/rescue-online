@@ -129,7 +129,6 @@ public class ModuleManager {
 		changeConfig(Module.AT);
 		updateGUI(Module.AT);
 
-		output();
 
 	}
 
@@ -639,6 +638,7 @@ public class ModuleManager {
 		}
 		outputModuleManager(map);
 		ModulePublisher publisher=new ModulePublisher();
+		publisher.writeModuleCfg(map, new File("text.txt"));
 		//publisher.publishModuleFile(set, "localhost", 9999);
 		publisher.gitPush();
 	}
@@ -664,7 +664,7 @@ public class ModuleManager {
 	/******************************************************************************************************************************************************/
 
 	public static class AgentConfig {
-
+		
 		public String name;
 		public Detector detector;
 		public Search search;
