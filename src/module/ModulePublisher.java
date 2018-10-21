@@ -8,16 +8,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 
+
+
+
+
 public class ModulePublisher {
 	
-	private String modulePath=System.getProperty("user.home")+"/git/sample-master/config/";
+	private String modulePath=System.getProperty("user.home")+"/git/sample-nenetti";
 	
 	
 	
@@ -42,7 +48,18 @@ public class ModulePublisher {
 		}
 	}
 	
+	public void gitPush() {
+		try {
+			String shell=System.getProperty("user.home")+"/git/sample-nenetti/git_https.sh";
+			ProcessBuilder processBuilder=new ProcessBuilder("bash", shell, "nenetti", "0.1").inheritIO();
+			Process process=processBuilder.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void publishModuleFile(HashSet<ClassFile> set, String host, int port) {
+		gitPush();
 		try {
 			InetSocketAddress address=new InetSocketAddress(host, port);
 			int index=1, length=set.size();

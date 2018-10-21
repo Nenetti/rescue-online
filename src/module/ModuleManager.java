@@ -40,7 +40,7 @@ public class ModuleManager {
 
 	private static final String AGENT_PANEL_ID = "AgentPanel";
 	private static final String CENTER_PANEL_ID = "CenterPanel";
-	private String modulePath=System.getProperty("user.home")+"/git/sample-master/config/";
+	private String modulePath=System.getProperty("user.home")+"/git/sample-nenetti/config/";
 
 
 	public AnchorPane agentPanel;
@@ -639,7 +639,8 @@ public class ModuleManager {
 		}
 		outputModuleManager(map);
 		ModulePublisher publisher=new ModulePublisher();
-		publisher.publishModuleFile(set, "localhost", 9999);
+		//publisher.publishModuleFile(set, "localhost", 9999);
+		publisher.gitPush();
 	}
 
 	private void outputModuleManager(HashMap<String, String> map) {

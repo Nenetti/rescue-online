@@ -40,7 +40,7 @@ public class Main_Client extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		NodeFX nodeFX=NodeFX.readFXML("./stage.fxml");
 
-		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-master/src");
+		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-nenetti/src");
 		ModuleManager manager=new ModuleManager(nodeFX, classFiles);
 		
 		Scene scene=new Scene(nodeFX.root);

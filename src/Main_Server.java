@@ -14,7 +14,7 @@ public class Main_Server {
 
 	public static String SERVER_PATH=System.getProperty("user.home")+"/git/rcrs-server-master";
 	//public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-master";
-	public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-module";
+	public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-nenetti";
 
 
 
