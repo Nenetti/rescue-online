@@ -21,7 +21,7 @@
          <children>
             <AnchorPane>
                <children>
-                  <TabPane fx:id="TabPane" prefHeight="500.0" prefWidth="209.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="200.0" tabMaxWidth="50.0" tabMinHeight="200.0" tabMinWidth="50.0">
+                  <TabPane fx:id="TabPane" prefHeight="410.0" prefWidth="209.0" rotateGraphic="true" side="LEFT" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="200.0" tabMaxWidth="50.0" tabMinHeight="200.0" tabMinWidth="50.0">
                     <tabs>
                       <Tab id="AT" closable="false">
                            <graphic>
@@ -169,9 +169,14 @@
                         </Tab>
                     </tabs>
                   </TabPane>
-                  <Button fx:id="Execute" layoutX="10.0" layoutY="510.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="190.0" style="-fx-border-color: #FF0000; -fx-border-width: 2;" text="実行">
+                  <Button fx:id="Execute" layoutX="10.0" layoutY="500.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="190.0" text="実行">
                      <font>
                         <Font size="30.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="Save" layoutX="10.0" layoutY="420.0" mnemonicParsing="false" prefHeight="60.0" prefWidth="190.0" text="コンフィグ保存">
+                     <font>
+                        <Font size="25.0" />
                      </font>
                   </Button>
                </children>

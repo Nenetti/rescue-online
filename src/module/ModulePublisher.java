@@ -36,26 +36,9 @@ import javafx.stage.Stage;
 
 
 public class ModulePublisher {
+
 	
-	private String modulePath=System.getProperty("user.home")+"/git/sample-nenetti/module.cfg";
-	
-	public void writeModuleCfg(HashMap<String, String> map, File file) {
-		try {
-			BufferedWriter writer=new BufferedWriter(new FileWriter(new File(modulePath)));
-			writer.write("Team.Name : rescue-online\n");
-			for(String key:map.keySet()) {
-				writer.write(key+" : "+map.get(key));
-				writer.newLine();
-			}
-			writer.flush();
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	public void gitPush() {
+	public static void gitPush() {
 		
 		String branch, user, password;
 		
@@ -109,31 +92,13 @@ public class ModulePublisher {
 				}
 				map.put("Branch", branch);
 				map.put("Username", user);
-				writeConfig("config.cfg", map);
 				return;
 			}
 		}
 		return;
 	}
 	
-	private void writeConfig(String filePath, HashMap<String, String> map) {
-		try {
-			File file=new File(filePath);
-			file.createNewFile();
-			BufferedWriter writer=new BufferedWriter(new FileWriter(file));
-			for(String key:map.keySet()) {
-				writer.write(key+" : "+map.get(key));
-				writer.newLine();
-			}
-			writer.flush();
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	private HashMap<String, String> readPreviousConfig(String filePath) {
+	private static HashMap<String, String> readPreviousConfig(String filePath) {
 		HashMap<String, String> map=new HashMap<>();
 		try {
 			File file=new File(filePath);
@@ -155,6 +120,26 @@ public class ModulePublisher {
 			e.printStackTrace();
 		}
 		return map;
+	}
+	
+	public void startServer(String host, int port, String user, String map) {
+		try {
+			InetSocketAddress address=new InetSocketAddress(host, port);
+			Socket socket=new Socket();
+			socket.connect(address, 1000000);
+			
+			BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer.write(user+" : "+map);
+			writer.flush();
+			while(!socket.isClosed()) {
+				
+			}
+			
+			socket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/*

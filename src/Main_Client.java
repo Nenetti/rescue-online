@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javafx.application.Application;
@@ -38,11 +39,18 @@ public class Main_Client extends Application {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+
+		String sourcePath=getSourcePath(System.getProperty("user.home")+"/git");
+		if(sourcePath==null) {
+			System.out.println("\n モジュールファイルが見つかりませんでした \n");
+			System.exit(1);
+		}
+
 		NodeFX nodeFX=NodeFX.readFXML("./stage.fxml");
 
-		List<ClassFile> classFiles=ClassReader.ClassRead(System.getProperty("user.home")+"/git/sample-nenetti/src");
-		ModuleManager manager=new ModuleManager(nodeFX, classFiles);
-		
+		ModuleManager manager=new ModuleManager(nodeFX,sourcePath);
+		manager.start();
+
 		Scene scene=new Scene(nodeFX.root);
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -50,8 +58,40 @@ public class Main_Client extends Application {
 
 	public static void main(String[] args) throws Exception {
 		launch(args);
-		//connect();
 	}
+
+	private String getSourcePath(String defaultPath) {
+		File file=new File(defaultPath);
+		if(file.exists()&&isSourceFile(file)) {
+			return file.getAbsolutePath();
+		}
+		file=new File(System.getProperty("user.home")+"/git");
+		if(file.exists()) {
+			for(File f:file.listFiles()) {
+				if(f.isDirectory()&&isSourceFile(f)) {
+					return f.getAbsolutePath();
+				}
+			}
+		}
+		return null;
+	}
+
+	private boolean isSourceFile(File file) {
+		File[] files=file.listFiles();
+		if(files!=null) {
+			for(File f:files) {
+				if(f.getName().equals("git_https.sh")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+
+
+
+
 
 	public static void connect() throws Exception{
 		InetSocketAddress inetSocketAddress=new InetSocketAddress("localhost", 9999);
@@ -65,14 +105,6 @@ public class Main_Client extends Application {
 		input.read(bs);
 		outputStream.write(bs);
 		outputStream.flush();
-		System.out.println(input.available());
-
-		//BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-		
-		//write(writer, new File("Main_Client.java"));
-		
-		
-		//socket.close();
 	}
 
 	public static void write(BufferedWriter writer, File file) throws Exception{

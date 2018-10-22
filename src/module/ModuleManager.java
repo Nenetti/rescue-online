@@ -40,8 +40,7 @@ public class ModuleManager {
 
 	private static final String AGENT_PANEL_ID = "AgentPanel";
 	private static final String CENTER_PANEL_ID = "CenterPanel";
-	private String modulePath=System.getProperty("user.home")+"/git/sample-nenetti/config/";
-
+	private String sourcePath;
 
 	public AnchorPane agentPanel;
 	public AnchorPane centerPanel;
@@ -77,6 +76,7 @@ public class ModuleManager {
 	public Tab fs_Tab;
 	public Tab po_Tab;
 	public Button exec_Button;
+	public Button save_Button;
 
 	public HashMap<String, ClassFile> detectors = new HashMap<>();
 	private HashMap<String, ClassFile> humanDetectors = new HashMap<>();
@@ -109,8 +109,15 @@ public class ModuleManager {
 	private HashMap<Module, AgentConfig> agentConfigs = new HashMap<>();
 	private HashMap<Module, CenterConfig> centerConfigs = new HashMap<>();
 
-	public ModuleManager(NodeFX nodeFX, List<ClassFile> files) {
+	public ModuleManager(NodeFX nodeFX, String path) {
+		this.sourcePath=path;
+		setupGUI(nodeFX);
+	}
 
+	public void start() {
+
+		List<ClassFile> classFiles=ClassReader.ClassRead(sourcePath);
+		
 		agentConfigs.put(Module.AT, new AgentConfig("AT"));
 		agentConfigs.put(Module.FB, new AgentConfig("FB"));
 		agentConfigs.put(Module.PF, new AgentConfig("PF"));
@@ -118,16 +125,11 @@ public class ModuleManager {
 		centerConfigs.put(Module.FS, new CenterConfig("FS"));
 		centerConfigs.put(Module.PO, new CenterConfig("PO"));
 
-
-		setupModuleList(files);
-		setupConfig(modulePath+"module_sample.cfg");
-
-		setupGUI(nodeFX);
+		setupModuleList(classFiles);
+		setupConfig(sourcePath+"/config/"+"module.cfg");
 		updateConfig(Module.AT);
-
 		changeConfig(Module.AT);
 		updateGUI(Module.AT);
-
 	}
 
 	/******************************************************************************************************************************************************
@@ -148,6 +150,7 @@ public class ModuleManager {
 		agentPanel = nodeFX.getAnchorPane(AGENT_PANEL_ID);
 		centerPanel = nodeFX.getAnchorPane(CENTER_PANEL_ID);
 		exec_Button = nodeFX.getButton("Execute");
+		save_Button = nodeFX.getButton("Save");
 
 		detector = (ComboBox<String>) nodeFX.getNode("Detector_Box");
 		detectorClustering = (ComboBox<String>) nodeFX.getNode("Clustering_Box");
@@ -198,6 +201,9 @@ public class ModuleManager {
 			}
 		});
 		exec_Button.setOnAction((ActionEvent e)->{
+			ModulePublisher.gitPush();
+		});
+		save_Button.setOnAction((ActionEvent e)->{
 			output();
 		});
 	}
@@ -587,29 +593,29 @@ public class ModuleManager {
 					break;
 				}
 				map.put(tactics+"."+detector, agent.detector.classFile.toOutputFormat());
-				if(agent.detector.clustering!=null) map.put(agent.detector.clustering.className+"."+"Clustering", agent.detector.clustering.toOutputFormat());
-				if(agent.detector.pathPlanning!=null) map.put(agent.detector.pathPlanning.className+"."+"PathPlanning", agent.detector.pathPlanning.toOutputFormat());
+				if(agent.detector.clustering!=null) map.put(agent.detector.classFile.className+"."+"Clustering", agent.detector.clustering.toOutputFormat());
+				if(agent.detector.pathPlanning!=null) map.put(agent.detector.classFile.className+"."+"PathPlanning", agent.detector.pathPlanning.toOutputFormat());
 
 				map.put(tactics+"."+"Search", agent.search.classFile.toOutputFormat());
-				map.put(agent.search.pathPlanning.className+"."+"PathPlanning"+"."+agentType, agent.search.pathPlanning.toOutputFormat());
-				map.put(agent.search.clustering.className+"."+"Clustering"+"."+agentType, agent.search.clustering.toOutputFormat());
+				map.put(agent.search.classFile.className+"."+"PathPlanning"+"."+agentType, agent.search.pathPlanning.toOutputFormat());
+				map.put(agent.search.classFile.className+"."+"Clustering"+"."+agentType, agent.search.clustering.toOutputFormat());
 
 				map.put(tactics+"."+extAction, agent.extAction.classFile.toOutputFormat());
-				map.put(agent.extAction.pathPlanning.className+"."+"PathPlanning", agent.extAction.pathPlanning.toOutputFormat());
+				map.put(agent.extAction.classFile.className+"."+"PathPlanning", agent.extAction.pathPlanning.toOutputFormat());
 				map.put(tactics+"."+"ActionExtMove", agent.extActionMove.classFile.toOutputFormat());
-				map.put(agent.extActionMove.pathPlanning.className+"."+"PathPlanning", agent.extActionMove.pathPlanning.toOutputFormat());
+				map.put(agent.extActionMove.classFile.className+"."+"PathPlanning", agent.extActionMove.pathPlanning.toOutputFormat());
 
 				map.put(tactics+"."+"CommandExecutor"+agentType, agent.commandExecutor.classFile.toOutputFormat());
-				map.put(agent.commandExecutor.pathPlanning.className+"."+"PathPlanning", agent.commandExecutor.classFile.toOutputFormat());
-				map.put(agent.commandExecutor.extAction.className+"."+extAction, agent.commandExecutor.extAction.toOutputFormat());
-				map.put(agent.commandExecutor.extActionMove.className+"."+"ActionExtMove", agent.commandExecutor.extActionMove.toOutputFormat());
+				map.put(agent.commandExecutor.classFile.className+"."+"PathPlanning", agent.commandExecutor.pathPlanning.toOutputFormat());
+				map.put(agent.commandExecutor.classFile.className+"."+extAction, agent.commandExecutor.extAction.toOutputFormat());
+				map.put(agent.commandExecutor.classFile.className+"."+"ActionExtMove", agent.commandExecutor.extActionMove.toOutputFormat());
 
 				map.put(tactics+"."+"CommandExecutorScout", agent.commandExecutorScout.classFile.toOutputFormat());
-				map.put(agent.commandExecutorScout.pathPlanning.className+"."+"PathPlanning", agent.commandExecutorScout.classFile.toOutputFormat());
-				if(agent.commandExecutorScout.extAction!=null) map.put(agent.commandExecutorScout.extAction.className+"."+extAction, agent.commandExecutorScout.extAction.toOutputFormat());
+				map.put(agent.commandExecutorScout.classFile.className+"."+"PathPlanning", agent.commandExecutorScout.pathPlanning.toOutputFormat());
+				if(agent.commandExecutorScout.extAction!=null) map.put(agent.commandExecutorScout.classFile.className+"."+extAction, agent.commandExecutorScout.extAction.toOutputFormat());
 				set.addAll(agent.getClassFiles());
 				break;
-				
+
 			case AC:case FS:case PO:
 				CenterConfig center=centerConfigs.get(module);
 				String targetAllocator=null;
@@ -634,22 +640,18 @@ public class ModuleManager {
 				break;
 			}
 		}
-		outputModuleManager(map);
-		ModulePublisher publisher=new ModulePublisher();
-		publisher.writeModuleCfg(map, new File("text.txt"));
-		//publisher.publishModuleFile(set, "localhost", 9999);
-		publisher.gitPush();
-	}
 
-	private void outputModuleManager(HashMap<String, String> map) {
 		try {
-			BufferedWriter writer=new BufferedWriter(new FileWriter(new File(modulePath+"module.cfg")));
+			BufferedWriter writer=new BufferedWriter(new FileWriter(new File(sourcePath+"/config/"+"module.cfg")));
 			writer.write("Team.Name : rescue-online\n");
+			writer.newLine();
 			for(String key:map.keySet()) {
 				writer.write(key+" : "+map.get(key));
 				writer.newLine();
 			}
+			writer.flush();
 			writer.close();
+			System.out.println("\nコンフィグを保存しました\n");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -662,7 +664,7 @@ public class ModuleManager {
 	/******************************************************************************************************************************************************/
 
 	public static class AgentConfig {
-		
+
 		public String name;
 		public Detector detector;
 		public Search search;
