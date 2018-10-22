@@ -18,7 +18,7 @@ public class Main_Server {
 
 
 	public static String DEFAULT_SERVER_PATH=System.getProperty("user.home")+"/git/rcrs-server-master";
-	public static String DEFAULT_SOURCE_PATH=System.getProperty("user.home")+"/git/sample-";
+	public static String DEFAULT_SOURCE_PATH=System.getProperty("user.home")+"/git/";
 
 	private final static String HOME=System.getProperty("user.home");
 
@@ -29,8 +29,9 @@ public class Main_Server {
 
 		//while(true) {
 		ServerSocket serverSocket=new ServerSocket(9999);
+		System.out.println("接続待機中...");
 		Socket socket=serverSocket.accept();
-
+		System.out.println("接続完了");
 		BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		String line;
 		String user=null;
@@ -44,12 +45,12 @@ public class Main_Server {
 		}
 		System.out.println(user+" ::: "+map);
 		if(user!=null&&map!=null) {
-			ProcessBuilder builder=new ProcessBuilder("cd", "~/git", ":", "git", "clone", "-b", user, "https://github.com/Ri--one/rescue-online.git", "sample-"+user).inheritIO();
+			ProcessBuilder builder=new ProcessBuilder("bash", "git_clone.sh", DEFAULT_SOURCE_PATH, user).inheritIO();
 			Process process=builder.start();
 			process.waitFor();
 		}
-		//run("../maps/gml/test/map", "../maps/gml/test/config");
-		//}
+		socket.close();
+		serverSocket.close();
 	}
 
 /*

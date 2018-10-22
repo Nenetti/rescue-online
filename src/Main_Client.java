@@ -61,11 +61,7 @@ public class Main_Client extends Application {
 
 	public static void main(String[] args) throws Exception {
 		//launch(args);
-		//connect();
-		ProcessBuilder builder=new ProcessBuilder("/bin/sh", "-c", "ls || ls /home/ubuntu").inheritIO();
-		//ProcessBuilder builder=new ProcessBuilder("cd", "~/git", ":", "git", "clone", "-b", user, "https://github.com/Ri--one/rescue-online.git", "sample-"+user).inheritIO();
-		Process process=builder.start();
-		process.waitFor();
+		connect();
 	}
 
 	
