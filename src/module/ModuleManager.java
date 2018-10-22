@@ -201,7 +201,7 @@ public class ModuleManager {
 			}
 		});
 		exec_Button.setOnAction((ActionEvent e)->{
-			ModulePublisher.gitPush();
+			//ModulePublisher.gitPush();
 		});
 		save_Button.setOnAction((ActionEvent e)->{
 			output();
@@ -640,11 +640,10 @@ public class ModuleManager {
 				break;
 			}
 		}
-
+		map.put("Team.Name", "rescue-online");
+		
 		try {
 			BufferedWriter writer=new BufferedWriter(new FileWriter(new File(sourcePath+"/config/"+"module.cfg")));
-			writer.write("Team.Name : rescue-online\n");
-			writer.newLine();
 			for(String key:map.keySet()) {
 				writer.write(key+" : "+map.get(key));
 				writer.newLine();

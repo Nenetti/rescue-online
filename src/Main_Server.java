@@ -11,23 +11,53 @@ import java.util.HashMap;
 
 import module.ModuleSocket;
 import module.ModuleSubscriber;
+import module.Path;
 
 public class Main_Server {
 
-	
-	
-	public static String SERVER_PATH=System.getProperty("user.home")+"/git/rcrs-server-master";
-	public static String SOURCE_PATH=System.getProperty("user.home")+"/git/sample-";
-	
+
+
+	public static String DEFAULT_SERVER_PATH=System.getProperty("user.home")+"/git/rcrs-server-master";
+	public static String DEFAULT_SOURCE_PATH=System.getProperty("user.home")+"/git/sample-";
+
+	private final static String HOME=System.getProperty("user.home");
+
+
 	public static void main(String[] args) throws Exception{
-		run("../maps/gml/test/map", "../maps/gml/test/config");
+
+		String server=DEFAULT_SERVER_PATH;
+
+		//while(true) {
+		ServerSocket serverSocket=new ServerSocket(9999);
+		Socket socket=serverSocket.accept();
+
+		BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String line;
+		String user=null;
+		String map=null;
+		while((line=reader.readLine())!=null) {
+			int index=line.lastIndexOf(":");
+			if(index!=-1) {
+				user=line.substring(0, index).trim();
+				map=line.substring(index+1).trim();		
+			}
+		}
+		System.out.println(user+" ::: "+map);
+		if(user!=null&&map!=null) {
+			ProcessBuilder builder=new ProcessBuilder("cd", "~/git", ":", "git", "clone", "-b", user, "https://github.com/Ri--one/rescue-online.git", "sample-"+user).inheritIO();
+			Process process=builder.start();
+			process.waitFor();
+		}
+		//run("../maps/gml/test/map", "../maps/gml/test/config");
+		//}
 	}
-	
+
+/*
 	public void subscribe(int port) {
 		try {
 			ServerSocket serverSocket=new ServerSocket(port);
 			Socket socket=serverSocket.accept();
-			
+
 			BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String line=reader.readLine();
 			int index=line.lastIndexOf(":");
@@ -41,8 +71,9 @@ public class Main_Server {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
+	/*
 	public static void run(String user, String mapPath) throws Exception {
 		Runtime.getRuntime().addShutdownHook(new Thread(()->{
 			try {
@@ -53,7 +84,7 @@ public class Main_Server {
 				e.printStackTrace();
 			}
 		}));
-		
+
 		String mapDataPath=mapPath+"/map";
 		String mapConfigPath=mapPath+"/config";
 		Process serverProcess=new ProcessBuilder("bash", SERVER_PATH+"/boot.sh", mapDataPath, mapConfigPath).inheritIO().start();
@@ -61,7 +92,7 @@ public class Main_Server {
 		Process sourceProcess=new ProcessBuilder("bash", SOURCE_PATH+user+"/boot.sh").inheritIO().start();
 		serverProcess.waitFor();
 		sourceProcess.waitFor();
-	}
+	}*/
 
 	private static void duration(int time) {
 		try {
@@ -70,5 +101,5 @@ public class Main_Server {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

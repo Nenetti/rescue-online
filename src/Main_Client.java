@@ -28,6 +28,7 @@ import module.ClassReader;
 import module.ModuleManager;
 import module.ModuleReader;
 import module.NodeFX;
+import module.Path;
 
 
 
@@ -35,12 +36,14 @@ import module.NodeFX;
 
 public class Main_Client extends Application {
 
+	private final static String HOME=System.getProperty("user.home");
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		String sourcePath=getSourcePath(System.getProperty("user.home")+"/git");
+		String sourcePath=Path.getTargetPath(HOME+"/git", "git_https.sh");
+		
 		if(sourcePath==null) {
 			System.out.println("\n モジュールファイルが見つかりませんでした \n");
 			System.exit(1);
@@ -57,36 +60,15 @@ public class Main_Client extends Application {
 	}
 
 	public static void main(String[] args) throws Exception {
-		launch(args);
+		//launch(args);
+		//connect();
+		ProcessBuilder builder=new ProcessBuilder("/bin/sh", "-c", "ls || ls /home/ubuntu").inheritIO();
+		//ProcessBuilder builder=new ProcessBuilder("cd", "~/git", ":", "git", "clone", "-b", user, "https://github.com/Ri--one/rescue-online.git", "sample-"+user).inheritIO();
+		Process process=builder.start();
+		process.waitFor();
 	}
 
-	private String getSourcePath(String defaultPath) {
-		File file=new File(defaultPath);
-		if(file.exists()&&isSourceFile(file)) {
-			return file.getAbsolutePath();
-		}
-		file=new File(System.getProperty("user.home")+"/git");
-		if(file.exists()) {
-			for(File f:file.listFiles()) {
-				if(f.isDirectory()&&isSourceFile(f)) {
-					return f.getAbsolutePath();
-				}
-			}
-		}
-		return null;
-	}
-
-	private boolean isSourceFile(File file) {
-		File[] files=file.listFiles();
-		if(files!=null) {
-			for(File f:files) {
-				if(f.getName().equals("git_https.sh")) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+	
 
 
 
@@ -96,15 +78,13 @@ public class Main_Client extends Application {
 	public static void connect() throws Exception{
 		InetSocketAddress inetSocketAddress=new InetSocketAddress("localhost", 9999);
 		Socket socket=new Socket();
-		socket.connect(inetSocketAddress, 10000);
-		BufferedInputStream input=new BufferedInputStream(new FileInputStream(new File("Main_Client.java")));
-		System.out.println(input.available());
-		Thread.sleep(1000);
-		BufferedOutputStream outputStream=new BufferedOutputStream(socket.getOutputStream());
-		byte[] bs=new byte[input.available()];
-		input.read(bs);
-		outputStream.write(bs);
-		outputStream.flush();
+		socket.connect(inetSocketAddress, 1000000);
+		
+		BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		writer.write("nenetti : asaas");
+		writer.flush();
+		writer.close();
+		socket.close();
 	}
 
 	public static void write(BufferedWriter writer, File file) throws Exception{
